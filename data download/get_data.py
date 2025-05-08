@@ -16,7 +16,7 @@ with open('Applied-ML-Template/data download/common_names.txt', 'r') as file:
 for elem in check:
     os.makedirs(os.path.join("Applied-ML-Template/data download/wavs", elem), exist_ok=True)
 
-count = 0
+# count = 0
 with open('Applied-ML-Template/data download/wav_links.txt', 'r') as f1, open('Applied-ML-Template/data download/common_names.txt', 'r') as f2:
     for line1, line2 in zip(f1, f2):
         # Remove trailing newlines to avoid double-spacing
@@ -32,8 +32,8 @@ with open('Applied-ML-Template/data download/wav_links.txt', 'r') as f1, open('A
             # filename = filename + f"{count}" + ".wav"
             # 
             print("TESTSTSTSTSTS", filename)
-            filename = os.path.join(filename, line2 + f"{count}" + ".wav")
-            count += 1
+            filename = os.path.join(filename, line2 + ".wav")
+            # count += 1
             with open(filename, "wb") as out_file:
                 for chunk in response.iter_content(chunk_size=8192):
                     if chunk:

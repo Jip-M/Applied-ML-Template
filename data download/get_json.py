@@ -33,7 +33,7 @@ for filename in glob.glob(folder_path + "/*.json"):
         # Process your metadata here by adding all the links from all the json pages
         file_links = find_all_file_keys(data, target_key="file")
         
-        file_names = find_all_file_keys(data, target_key="en")
+        file_names = find_all_file_keys(data, target_key="id")
 
     # since there are 3 pages in our case, we have to do this step 3 times, so we append
     # the lists in a bigger list

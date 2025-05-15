@@ -1,0 +1,17 @@
+pandas
+numpy
+matplotlib
+pathlib
+os
+scipy
+pydub
+scikit-learn
+tempfile
+seaborn
+json
+requests
+glob
+datetime
+xeno-canto
+# tensorflow is just a substitute until we change to pytorch
+tensorflow

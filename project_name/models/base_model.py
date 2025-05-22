@@ -17,4 +17,3 @@ class BaseModel:
     def evaluate(self, X: np.ndarray, y: np.ndarray) -> float:
         predictions = self.predict(X)
         return accuracy_score(y, predictions)
-

@@ -47,22 +47,25 @@ def kfold_validation_CNN(X: np.ndarray, y: np.ndarray, k: int = 5) -> float:
 
 
 def prepare_data():
+    lim = 220 # limit training data here
+
     data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "cleaned")
-    csv_files = [os.path.join(data_dir, f) for f in os.listdir(data_dir) if f.endswith('.csv')]
+    label_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "labels.csv")
+    label_array = pd.read_csv(label_file, header=None, names=["file_id", "species"], dtype={"str": "int"})["species"].to_numpy()
+    csv_files = sorted([os.path.join(data_dir, f) for f in os.listdir(data_dir) if f.endswith('.csv')])
+
     images = []
-    labels = []
-
-
     for i, file in enumerate(csv_files):
+        if i >= lim:
+            break
+
         img = pd.read_csv(file, header=None).values  # shape: (281, 1000)
         images.append(img)
-
-        labels.append(0 if i < len(csv_files) // 2 else 1)
 
 
     images = np.array(images)  # shape: (n_samples, 281, 1000)
     images = images[..., np.newaxis]  # Add channel dimension: (n_samples, 281, 1000, 1)
-    labels = np.array(labels)
+    labels = label_array[:lim]
     
     return images, labels # train_images, test_images, train_labels, test_labels (before)
 

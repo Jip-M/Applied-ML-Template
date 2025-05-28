@@ -121,8 +121,8 @@ def preprocess(
 
 # Plot the spectrogram
 def plot_spectrogram(S, sr, fmin=10000, fmax=80000, hop_length=512):
-    plt.figure(figsize=(12, 6))
-    librosa.display.specshow(
+    fig, ax = plt.subplots(figsize=(12, 6))
+    img = librosa.display.specshow(
         S,
         sr=sr,
         x_axis="time",
@@ -130,11 +130,12 @@ def plot_spectrogram(S, sr, fmin=10000, fmax=80000, hop_length=512):
         fmin=fmin,
         fmax=fmax,
         hop_length=hop_length,
+        ax=ax
     )
-    plt.colorbar(format="%+2.0f dB")
-    plt.title(f"Mel Spectrogram")
-    plt.tight_layout()
-    plt.show()
+    fig.colorbar(img, ax=ax, format="%+2.0f dB")
+    ax.set_title(f"Mel Spectrogram")
+    fig.tight_layout()
+    return fig
 
 
 # Sample testing

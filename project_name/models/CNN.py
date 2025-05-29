@@ -31,6 +31,7 @@ class AudioCNN(nn.Module):
         self.train_data = None
         self.test_data = None
         self.num_epochs = number_of_epochs
+        self.num_classes = num_classes
         
 
     def forward(self, x: torch.tensor) -> torch.tensor:
@@ -92,11 +93,16 @@ class AudioCNN(nn.Module):
         Returns:
             dict: Contains both class indices and probabilities
         """
+        all_outputs = torch.empty(0, self.num_classes)
+        all_labels = torch.empty(0)
         with torch.no_grad():
-            for inputs, _ in self.test_data:
+            for inputs, labels in self.test_data:
                 outputs = self(inputs)
-            
-        _, predicted_classes = torch.max(outputs, dim=1)
+                all_outputs = torch.cat((all_outputs, outputs), dim=0)
+                all_labels = torch.cat((all_labels, labels), dim=0)
+
+        # Get predicted class indices
+        _, predicted_classes = torch.max(all_outputs, dim=1)
         
         return predicted_classes
     

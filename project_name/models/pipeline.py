@@ -22,7 +22,7 @@ def kfold_validation(X: np.ndarray, y: np.ndarray, model, k: int = 5, num_classe
     for train_index, test_index in kf.split(X):
         train_images, test_images = X[train_index], X[test_index]
         train_labels, test_labels = y[train_index], y[test_index]
-
+        model.reset_parameters()
         model.prepare_data(train_images, train_labels, test_images, test_labels)
         model.fit()
         predictions = model.predict()
@@ -32,30 +32,14 @@ def kfold_validation(X: np.ndarray, y: np.ndarray, model, k: int = 5, num_classe
         accuracies.append(accuracy)
 
         cm += confusion_matrix(test_labels, predictions, labels=np.arange(0, num_classes))
-        accuracies.append(accuracy)
+        print(cm)
         print(f"CNN Test Accuracy: {accuracy:.4f}")
-        accuracies.append(accuracy)
         # model.plot_train_loss(num_epochs, train_losses, train_accuracies)
 
-    logits = model.state_dict()
+    state_dict = model.state_dict()
     average_accuracy = np.mean(accuracies)
     print(f"Average accuracy: {average_accuracy}")
-    return average_accuracy, cm, logits
-
-
-def initialize_CNN():
-    torch.manual_seed(2222)
-    np.random.seed(2222)
-
-    num_classes = 2 
-    learning_rate = 0.001
-    num_epochs = 1
-
-    # CNN Model
-    model = AudioCNN(num_classes=num_classes, learning_rate=learning_rate, number_of_epochs=num_epochs)
-
-    return model
-
+    return average_accuracy, cm, state_dict
 
 def initialize_basemodel():
     base_model = BaseModel()
@@ -104,8 +88,8 @@ def run_pipeline():
     images, labels = retrieve_data()
     print("Starting the kfold cross validation!")
     print("CNN:")
-    (acc, cm, logits) = kfold_validation(images, labels, model=initialize_CNN(num_classes=4), k=5)
-    torch.save(logits, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "trained_model", "CNN.pth"))
+    (acc, cm, state_dict) = kfold_validation(images, labels, model=initialize_CNN(num_classes=4), k=5, num_classes=4)
+    torch.save(state_dict, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "trained_model", "CNN.pth"))
     # print("Basemodel:")
     # kfold_validation(images, labels, model=initialize_basemodel(), k=5)
 

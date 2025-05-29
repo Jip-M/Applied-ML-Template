@@ -141,13 +141,24 @@ def plot_spectrogram(S, sr, fmin=10000, fmax=80000, hop_length=512):
 
 def preprocess_all_data(df: pd.DataFrame, species_selection: list[str]):
     labels = []
+
+    # Prevent class imbalance
+    max = 100
+    counts = [0,0,0,0]
+
     for index, row in df.iterrows():
         file_id = row["id"]
         species_id = species_selection.index(row["species"])
 
+        if counts[species_id] >= max:
+            continue
+
         try:
             slices, sr = preprocess(raw_path(file_id))
             for idx, slice in enumerate(slices):
+                if counts[species_id] >= max:
+                    continue
+
                 if slice.shape != (512, 1024):
                     print(f"wrong shape {slice.shape} for file: {file_id}")
                     continue
@@ -158,17 +169,7 @@ def preprocess_all_data(df: pd.DataFrame, species_selection: list[str]):
                     np.savetxt(csv_file, arr, delimiter=",")
                     # append successful labels
                     labels.append([f"{file_id}_{idx}", f"{species_id}"])
-
-            # for idx, (f, t, sxx) in enumerate(arr):
-            #     if sxx.shape != (512, 1024):
-            #         print(f"wrong shape {sxx.shape} for file: {file_id}")
-            #         continue
-            #     out_path = data_path(file_id, idx)
-            #     arr = np.asarray(sxx)
-            #     with open(out_path, "wb") as csv_file:
-            #         np.savetxt(csv_file, arr, delimiter=",")
-            #     # append successful labels
-            #     labels.append([f"{file_id}_{idx}", f"{species_id}"])
+                counts[species_id] += 1
 
         except Exception as e:
             print(f"Could not process file {file_id}")

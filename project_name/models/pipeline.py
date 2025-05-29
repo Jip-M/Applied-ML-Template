@@ -26,7 +26,7 @@ def kfold_validation(X: np.ndarray, y: np.ndarray, model, k: int = 5, num_classe
         model.prepare_data(train_images, train_labels, test_images, test_labels)
         model.fit()
         predictions = model.predict()
-        confusion_matrix = metric.confusion(test_labels, predictions)
+        # confusion_matrix = metric.confusion(test_labels, predictions)
         # auroc = metric.auroc(test_labels, predictions)
         accuracy = metric.accuracy(test_labels, predictions)
         accuracies.append(accuracy)
@@ -37,9 +37,10 @@ def kfold_validation(X: np.ndarray, y: np.ndarray, model, k: int = 5, num_classe
         accuracies.append(accuracy)
         # model.plot_train_loss(num_epochs, train_losses, train_accuracies)
 
+    logits = model.state_dict()
     average_accuracy = np.mean(accuracies)
     print(f"Average accuracy: {average_accuracy}")
-    return average_accuracy, cm
+    return average_accuracy, cm, logits
 
 
 def initialize_CNN():
@@ -85,7 +86,7 @@ def initialize_CNN(num_classes: int):
     np.random.seed(2222)
 
     learning_rate = 0.001
-    num_epochs = 1
+    num_epochs = 3
 
     # CNN Model
     model = AudioCNN(num_classes=num_classes, learning_rate=learning_rate, number_of_epochs=num_epochs)
@@ -103,9 +104,10 @@ def run_pipeline():
     images, labels = retrieve_data()
     print("Starting the kfold cross validation!")
     print("CNN:")
-    (acc, cm) = kfold_validation(images, labels, model=initialize_CNN(num_classes=4), k=5)
-    print("Basemodel:")
-    kfold_validation(images, labels, model=initialize_basemodel(), k=5)
+    (acc, cm, logits) = kfold_validation(images, labels, model=initialize_CNN(num_classes=4), k=5)
+    torch.save(logits, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "trained_model", "CNN.pth"))
+    # print("Basemodel:")
+    # kfold_validation(images, labels, model=initialize_basemodel(), k=5)
 
     ConfusionMatrixDisplay(cm).plot()
     plt.show()

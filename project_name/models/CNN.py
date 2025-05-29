@@ -84,7 +84,7 @@ class AudioCNN(nn.Module):
         # model.plot_train_loss(num_epochs, train_losses, train_accuracies)
         return train_losses, train_accuracies # it returns these but they are not that important, just for the plots
         
-    def predict(self, test_loader):
+    def predict(self):
         """
         Make predictions from raw model outputs
         Args:
@@ -93,7 +93,7 @@ class AudioCNN(nn.Module):
             dict: Contains both class indices and probabilities
         """
         with torch.no_grad():
-            for inputs, _ in test_loader:
+            for inputs, _ in self.test_data:
                 outputs = self(inputs)
             
         _, predicted_classes = torch.max(outputs, dim=1)

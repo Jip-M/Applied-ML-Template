@@ -15,18 +15,18 @@ This script will let you automatically download all the dependencies.
 Before getting started and running the pipeline, it is important to mention that the pipeline will automatically download the data locally. This implies that you need quite an amount of free space (up to 10 GB) to be able to run the pipeline without problems.
 
 To **run** the pipeline, you have to run this script on the APPLIED-ML-TEMPLATE integrated terminal:
-'''
+```
 python -m pipeline
-'''
+```
 
 As a result, you will see multiple checkpoints (print statements) throughout the run that highlight when the data is getting prepared, saved, start to train the models, each epoch update of the accuracy and the loss of the main model (CNN), confustion matrix and the average accuracy after 10 (set as default in the pipeline, in the initialize_CNN() function) epochs.
 
 
 **How to run the API app**
 In order to run the FastAPI, you have to open the integrated terminal from the folder called "api" and run this script:
-'''
+```
 uvicorn api.main:app --reload
-'''
+```
 After that, you have to enter this site in order to see it work:
 
 http://127.0.0.1:8000/docs#/

@@ -24,6 +24,7 @@ class AudioCNN(nn.Module):
 
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = optim.Adam(self.parameters(), learning_rate)
+        self.num_classes = num_classes
         
 
     def forward(self, x: torch.tensor) -> torch.tensor:
@@ -84,17 +85,21 @@ class AudioCNN(nn.Module):
         Returns:
             dict: Contains both class indices and probabilities
         """
+        all_outputs = torch.empty(0, self.num_classes)
+        all_labels = torch.empty(0)
         with torch.no_grad():
             for inputs, labels in test_loader:
                 outputs = self(inputs)
+                all_outputs = torch.cat((all_outputs, outputs), dim=0)
+                all_labels = torch.cat((all_labels, labels), dim=0)
             
         # Get predicted class indices
-        _, predicted_classes = torch.max(outputs, dim=1)
+        _, predicted_classes = torch.max(all_outputs, dim=1)
         
         # Get probabilities (optional)
         # probabilities = torch.nn.functional.softmax(outputs, dim=1)
         
-        return predicted_classes, labels
+        return predicted_classes, all_labels
     
     def evaluate(self, predictions, labels):
         # predictions, labels = self.predict(test_loader)

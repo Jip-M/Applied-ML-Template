@@ -10,12 +10,12 @@ from torch.utils.data import DataLoader, TensorDataset
 class AudioCNN(nn.Module):
     def __init__(self, num_classes: int, learning_rate: float, number_of_epochs: int):
         super(AudioCNN, self).__init__()
-        # Convolutional layers
+
         self.conv1 = nn.Conv2d(in_channels=1, out_channels=16, kernel_size=3, stride=1, padding=1)
         self.conv2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, stride=1, padding=1)
         self.conv3 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=1)
 
-        # Pooling layer
+
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
 
         dummy_input = torch.zeros(1, 1, 512, 1024)
@@ -37,12 +37,7 @@ class AudioCNN(nn.Module):
         self.num_classes = num_classes
         
 
-    def forward(self, x: torch.tensor) -> torch.tensor:
-        """
-        X: shape (batch_size, 1, height, width).
-
-        Returns: shape (batch_size, num_classes).
-        """
+    def forward(self, x: torch.tensor):
         x = self.pool(F.relu(self.conv1(x)))
         x = self.pool(F.relu(self.conv2(x)))
         x = self.pool(F.relu(self.conv3(x)))
@@ -80,17 +75,9 @@ class AudioCNN(nn.Module):
             train_accuracies.append(epoch_accuracy)
             print(f"Epoch {epoch + 1}/{self.num_epochs}, Loss: {epoch_loss:.4f}, Accuracy: {epoch_accuracy:.4f}")
 
-        # model.plot_train_loss(num_epochs, train_losses, train_accuracies)
         return train_losses, train_accuracies # it returns these but they are not that important, just for the plots
         
     def predict(self):
-        """
-        Make predictions from raw model outputs
-        Args:
-            inputs: Tensor of shape (batch_size, ...)
-        Returns:
-            dict: Contains both class indices and probabilities
-        """
         all_outputs = torch.empty(0, self.num_classes)
         all_labels = torch.empty(0)
         with torch.no_grad():
@@ -103,11 +90,7 @@ class AudioCNN(nn.Module):
         _, predicted_classes = torch.max(all_outputs, dim=1)
         
         return predicted_classes
-    
-    # def evaluate(self, predictions, metric):
-    #     # predictions, labels = self.predict(self.test_data)
-    #     return accuracy_score(labels, predictions)
-    
+
     def prepare_data(self, train_data, train_labels, test_data, test_labels):
         train_data = torch.tensor(train_data).permute(0, 3, 1, 2).float()  # (N, C, H, W)
         train_labels_tensor = torch.tensor(train_labels).long()

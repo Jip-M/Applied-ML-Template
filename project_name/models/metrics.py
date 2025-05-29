@@ -2,9 +2,9 @@ from sklearn.metrics import confusion_matrix, roc_auc_score, log_loss, accuracy_
 from sklearn.preprocessing import label_binarize
 
 class MultiClassMetrics:
-    def __init__(self, class_names=None):
-        self.class_names = class_names
-
+    """
+    Not yet implemented completely.
+    """
     def confusion(self, y_true, y_pred):
         cm = confusion_matrix(y_true, y_pred)
         return cm

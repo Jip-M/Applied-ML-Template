@@ -17,7 +17,7 @@ def download_metadata():
         print("Number of recordings:", api_data["numRecordings"])
         print("Number of pages:", api_data["numPages"])
 
-def load_metadata(species_selection: list[str]) -> pd.DataFrame:
+def load_metadata(species_selection: list[str]):
     # Convert metadata into pandas dataframe
     frames = []
     for entry in os.scandir(metadata_dir):
@@ -28,7 +28,7 @@ def load_metadata(species_selection: list[str]) -> pd.DataFrame:
                 frames.append(df)
 
     all_data = pd.concat(frames)
-    # print("Available columns:", all_data.columns.values.tolist())
+
     df = convert_columns(all_data)
     df = selection(df, species_selection)
 
@@ -38,7 +38,7 @@ def to_seconds(x):
     mins, secs = map(float, x.split(':'))
     return mins * 60 + secs
 
-def convert_columns(df: pd.DataFrame) -> pd.DataFrame:
+def convert_columns(df: pd.DataFrame):
     df['length'] = df['length'].apply(to_seconds)
     df = df.rename(
         columns={"gen": "genus", "sp": "species", "en": "english_name", "cnt": "country", "type": "call_type",
@@ -81,7 +81,7 @@ def download_file(file_id):
     except Exception as e:
         print(f"Failed to download {file_id}: {e}")
 
-def selection(df: pd.DataFrame, selected_species: list[str]) -> pd.DataFrame:
+def selection(df: pd.DataFrame, selected_species: list[str]):
     samples = df.loc[(df['species'].isin(selected_species)) & (df["call_type"] == "echolocation")].reset_index()
 
     stats = samples.groupby(["genus", "species", "english_name"])["species"].agg(["count"])

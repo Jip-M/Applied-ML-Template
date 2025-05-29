@@ -12,15 +12,9 @@ class BaseModel:
     def fit(self):
         self.model.fit(self.train_data[0], self.train_data[1])
 
-    def predict(self, X: np.ndarray) -> np.ndarray:
+    def predict(self, X: np.ndarray):
 
         return self.model.predict(X)
-
-    # def evaluate(self) -> float:
-    #     predictions = self.predict(self.test_data[0])
-    #     accuracy = accuracy_score(self.test_data[1], predictions)
-    #     print(f"BaseModel Test Accuracy: {accuracy:.4f}")
-    #     return accuracy
     
     def prepare_data(self, train_images, train_labels, test_images, test_labels):
         # Flatten images for BaseModel: (N, 281, 1000, 1) -> (N, 281000)

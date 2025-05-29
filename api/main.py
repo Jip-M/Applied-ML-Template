@@ -29,9 +29,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-CLASS_NAMES  = ["pipistrellus", "noctula", "auritus", "albescens"]
+CLASS_NAMES  = ["Pipistrellus pipistrellus - Common Pipistrelle", "Nyctalus noctula - Common Noctule", "Plecotus auritus - Brown Long-eared Bat",
+                "Myotis albescens - Silver-tipped Myotis"]
 
-# Load model (for now)
 def load_model():
     num_classes = len(CLASS_NAMES)
     learning_rate = 0.001
@@ -58,7 +58,7 @@ async def predict(
     Only .wav files are accepted.
     
     **Request:**
-    - file: .wav audio file (multipart/form-data, optional)
+    - file: .wav audio file
     
     **Response:**
     - class_name: Predicted bat species (string)
@@ -122,6 +122,6 @@ async def predict(
 @app.get("/", summary="API Home", tags=["Info"])
 def root():
     """
-    Welcome, test test test
+    Welcome to the Bat Audio Classification API. Use /predict/ to classify bat audio files
     """
     return {"message": "Welcome to the Bat Audio Classification API. Use /predict/ to classify bat audio files."}

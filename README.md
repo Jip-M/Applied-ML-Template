@@ -14,9 +14,9 @@ This script will let you automatically download all the dependencies.
 ***Important!***
 Before getting started and running the pipeline, it is important to mention that the pipeline will atuomatically download the data locally. This implies that you need quite an amount of free space (up to 10 GB) to be able to run the pipeline without problems.
 
-To **run** the pipeline, you have to run this script:
+To **run** the pipeline, you have to run this script on the APPLIED-ML-TEMPLATE integrated terminal:
 '''
-python -m project_name.models.pipeline 
+python -m pipeline
 '''
 
 As a result, you will see multiple checkpoints (print statements) throughout the run that highlight when the data is getting prepared, saved, start to train the models, each epoch update of the accuracy and the loss of the main model (CNN), confustion matrix and the average accuracy after 10 (set as default in the pipeline, in the initialize_CNN() function) epochs.
@@ -32,7 +32,7 @@ After that, you have to enter this site in order to see it work:
 http://127.0.0.1:8000/docs#/
 
 
-On the site, you will see a **Prediction** section that will let you try the code out. To do this, you press on the section and press on the "Try it out" button. This will let you upload a ".wav" file. If you do not upload a file, there will be a built-in sample that you can use to judge the model's performance. As a result, you will see the prediction of the model below, in the *responses* section.
+On the site, you will see a **Prediction** section that will let you try the code out. To do this, you press on the section and press on the "Try it out" button. This will let you upload a ".wav" file. If you do not upload a file, there will be a built-in sample that you can use to judge the model's performance. When you selected your choice, you press on the "Execute" button. As a result, you will see the prediction of the model below, in the *responses* section.
 
 ├───data  # Stores .csv
 ├───models  # Stores .pkl
@@ -49,7 +49,7 @@ On the site, you will see a **Prediction** section that will let you try the cod
 ├───.gitignore
 ├───.pre-commit-config.yaml
 ├───main.py
-├───train_model.py
+├───pipieline.py
 ├───Pipfile
 ├───Pipfile.lock
 ├───README.md

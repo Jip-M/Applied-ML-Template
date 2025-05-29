@@ -59,6 +59,12 @@ def data_path(file_id, segment_id):
 def label_path():
     return BASE_DIR / "data" / "labels.csv"
 
+def create_folders():
+    os.makedirs(BASE_DIR / "data" / "cleaned", exist_ok=True)
+    os.makedirs(BASE_DIR / "data" / "raw", exist_ok=True)
+    os.makedirs(BASE_DIR / "trained_model", exist_ok=True)
+    os.makedirs(BASE_DIR / "trained_model2", exist_ok=True)
+
 def download_file(file_id):
     try:
         url = raw_url(file_id)

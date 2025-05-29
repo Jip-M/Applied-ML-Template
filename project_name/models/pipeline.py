@@ -10,7 +10,7 @@ from base_model import BaseModel
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
 
-from project_name.data.download_data import download_metadata, load_metadata, download_files
+from project_name.data.download_data import create_folders, download_metadata, load_metadata, download_files
 from project_name.data.preprocess import preprocess_all_data
 
 def kfold_validation(X: np.ndarray, y: np.ndarray, model, k: int = 5, num_classes: int = 2):
@@ -89,7 +89,7 @@ def run_pipeline():
     print("Starting the kfold cross validation!")
     print("CNN:")
     (acc, cm, state_dict) = kfold_validation(images, labels, model=initialize_CNN(num_classes=4), k=5, num_classes=4)
-    torch.save(state_dict, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "trained_model", "CNN.pth"))
+    torch.save(state_dict, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "trained_model", "CNN.pt"))
     # print("Basemodel:")
     # kfold_validation(images, labels, model=initialize_basemodel(), k=5)
 
@@ -98,5 +98,6 @@ def run_pipeline():
     # run_CNN(train_images, test_images, train_labels, test_labels)
     # run_basemodel(train_images, test_images, train_labels, test_labels)
 
+create_folders()
 download_and_preprocess()
 run_pipeline()

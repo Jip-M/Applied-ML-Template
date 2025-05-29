@@ -12,7 +12,7 @@ This script will let you automatically download all the dependencies.
 
 **Run the code**
 ***Important!***
-Before getting started and running the pipeline, it is important to mention that the pipeline will atuomatically download the data locally. This implies that you need quite an amount of free space (up to 10 GB) to be able to run the pipeline without problems.
+Before getting started and running the pipeline, it is important to mention that the pipeline will automatically download the data locally. This implies that you need quite an amount of free space (up to 10 GB) to be able to run the pipeline without problems.
 
 To **run** the pipeline, you have to run this script on the APPLIED-ML-TEMPLATE integrated terminal:
 '''

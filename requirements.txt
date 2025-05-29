@@ -13,11 +13,6 @@ uvicorn
 requests
 streamlit
 pathlib
-os
-tempfile
-glob
-json
 datetime
 xeno-canto
 pydantic
-

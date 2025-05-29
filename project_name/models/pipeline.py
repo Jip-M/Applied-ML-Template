@@ -22,7 +22,6 @@ def kfold_validation(X: np.ndarray, y: np.ndarray, model, k: int = 5, num_classe
     for train_index, test_index in kf.split(X):
         train_images, test_images = X[train_index], X[test_index]
         train_labels, test_labels = y[train_index], y[test_index]
-        model.reset_parameters()
         model.prepare_data(train_images, train_labels, test_images, test_labels)
         model.fit()
         predictions = model.predict()

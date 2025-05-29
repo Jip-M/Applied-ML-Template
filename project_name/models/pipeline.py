@@ -10,6 +10,9 @@ from base_model import BaseModel
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
 
+from project_name.data.download_data import download_metadata, load_metadata, download_files
+from project_name.data.preprocess import preprocess_all_data
+
 def kfold_validation(X: np.ndarray, y: np.ndarray, model, k: int = 5, num_classes: int = 2):
     kf = KFold(n_splits=k, shuffle=True, random_state=22)
     accuracies = []
@@ -89,6 +92,12 @@ def initialize_CNN(num_classes: int):
 
     return model
 
+def download_and_preprocess():
+    selected_species = ["pipistrellus", "noctula", "auritus", "albescens"]
+    download_metadata()
+    data = load_metadata(selected_species)
+    download_files(data)
+    preprocess_all_data(data, selected_species)
 
 def run_pipeline():
     images, labels = retrieve_data()
@@ -103,5 +112,5 @@ def run_pipeline():
     # run_CNN(train_images, test_images, train_labels, test_labels)
     # run_basemodel(train_images, test_images, train_labels, test_labels)
 
-
+download_and_preprocess()
 run_pipeline()

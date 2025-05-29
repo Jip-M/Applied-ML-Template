@@ -8,7 +8,9 @@ import tempfile
 from pydub import AudioSegment, effects
 import librosa
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
+from project_name.data.download_data import raw_path, data_path, label_path
 
 # Notes: got rid of minmax possibility, because it doesnt change anything in the end
 
@@ -34,8 +36,8 @@ def preprocess(
     mean_std=True,  # if True, normalize mean, std
 ):
     # filecheck
-    if not filepath.endswith(".wav"):
-        raise ValueError("Input file must be a .wav file.")
+    # if not filepath.endswith(".wav"):
+    #     raise ValueError("Input file must be a .wav file.")
     # length check
     raw = AudioSegment.from_file(filepath)
     if raw.duration_seconds > allowed_length:
@@ -108,7 +110,7 @@ def preprocess(
         # if slice.shape[1] < frames_per_segment:
         #     slice = S[:, -frames_per_segment:]
         slices.append(slice)
-    print(f"slice size: {slices[0].shape}")
+    # print(f"slice size: {slices[0].shape}")
 
     # Generate time and mel frequency axes
     # times = librosa.frames_to_time(np.arange(S.shape[1]), sr=sr, hop_length=hop_length)
@@ -137,6 +139,49 @@ def plot_spectrogram(S, sr, fmin=10000, fmax=80000, hop_length=512):
     fig.tight_layout()
     return fig
 
+def preprocess_all_data(df: pd.DataFrame, species_selection: list[str]):
+    labels = []
+    for index, row in df.iterrows():
+        file_id = row["id"]
+        species_id = species_selection.index(row["species"])
+
+        try:
+            slices, sr = preprocess(raw_path(file_id))
+            for idx, slice in enumerate(slices):
+                if slice.shape != (512, 1024):
+                    print(f"wrong shape {slice.shape} for file: {file_id}")
+                    continue
+
+                out_path = data_path(file_id, idx)
+                arr = np.asarray(slice)
+                with open(out_path, "wb") as csv_file:
+                    np.savetxt(csv_file, arr, delimiter=",")
+                    # append successful labels
+                    labels.append([f"{file_id}_{idx}", f"{species_id}"])
+
+            # for idx, (f, t, sxx) in enumerate(arr):
+            #     if sxx.shape != (512, 1024):
+            #         print(f"wrong shape {sxx.shape} for file: {file_id}")
+            #         continue
+            #     out_path = data_path(file_id, idx)
+            #     arr = np.asarray(sxx)
+            #     with open(out_path, "wb") as csv_file:
+            #         np.savetxt(csv_file, arr, delimiter=",")
+            #     # append successful labels
+            #     labels.append([f"{file_id}_{idx}", f"{species_id}"])
+
+        except Exception as e:
+            print(f"Could not process file {file_id}")
+            print(e)
+
+    labels = sorted(labels)
+
+    all_labels = np.array(labels)[:, 1]
+    unique, counts = np.unique(all_labels, return_counts=True)
+    print("Label count:", unique, counts)
+
+    with open(label_path(), "wb") as csv_file:
+        np.savetxt(csv_file, labels, delimiter=",", fmt='%s')
 
 # Sample testing
 # slices, sr = preprocess(filepath)

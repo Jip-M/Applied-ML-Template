@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from project_name.data.download_data import raw_path, data_path, label_path
+import os
 
 # UNDERSTANDING PREPROCESS PARAMETERS FOR CORRECT DIMENSIONS
 # Number of frames fixed at 1024, as this is what model expects.
@@ -138,19 +139,10 @@ def preprocess(
     return slices, sr
 
 
-# Plot the spectrogram
-def plot_spectrogram(
-    S,
-    path: None | str = None,
-    sr:int=256000,
-    fmin:int=10000,
-    fmax:int=80000,
-    hop_length:int=512,
-    title:str="Spectrogram",
-    hline: None | tuple = None,
-):
+
+def plot_spectrogram(S, sr, fmin=10000, fmax=80000, hop_length=512, hline: None | tuple = None) -> plt.Figure:
     """
-    Plots mel spectrogram. Not required for model, but useful for debugging and visualization.
+    Generates mel spectrogram. Not required for model, but useful for debugging and visualization.
     Args:
         S (ndarray): Mel spectrogram to plot, shape (n_mels, t).
         path (str, optional): Path to save the plot. If None, the plot is shown.
@@ -158,16 +150,15 @@ def plot_spectrogram(
         fmin (int): Minimum frequency for the y-axis of the spectrogram.
         fmax (int): Maximum frequency for the y-axis of the spectrogram.
         hop_length (int): Hop length used for the spectrogram.
-        title (str): Title of the plot.
         hline (tuple, optional): Horizontal lines to draw on the plot, 
             e.g. for visualising frequency bands of interest 
             This parameter is used for debugging the data filtering section
 
     Returns:
-        None: Displays or saves the plot.
+        Plot: Matplotlib figure object containing the mel spectrogram.
     """
-    plt.figure(figsize=(12, 6))
-    librosa.display.specshow(
+    fig, ax = plt.subplots(figsize=(12, 6))
+    img = librosa.display.specshow(
         S,
         sr=sr,
         x_axis="time",
@@ -177,17 +168,13 @@ def plot_spectrogram(
         hop_length=hop_length,
         ax=ax
     )
-    plt.colorbar(format="%+2.0f dB")
-    plt.title(f"{title}")
-    plt.tight_layout()
+    fig.colorbar(img, ax=ax, format="%+2.0f dB")
+    ax.set_title(f"Mel Spectrogram")
+    fig.tight_layout()
     if hline:
         plt.axhline(y=hline[0])
         plt.axhline(y=hline[1])
-    if path is None:
-        plt.show()
-    else:
-        plt.savefig(path)
-    plt.close()
+    return fig
 
 
 def preprocess_all_data(df: pd.DataFrame, species_selection: list[str]):

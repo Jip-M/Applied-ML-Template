@@ -18,9 +18,12 @@ class AudioCNN(nn.Module):
         # Pooling layer
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        # Fully connected layers
-        self.fc1_input_features = None
-        self.fc1 = None
+        dummy_input = torch.zeros(1, 1, 512, 1024)
+        x = self.pool(F.relu(self.conv1(dummy_input)))
+        x = self.pool(F.relu(self.conv2(x)))
+        x = self.pool(F.relu(self.conv3(x)))
+        fc1_input_features = x.view(1, -1).size(1)
+        self.fc1 = nn.Linear(fc1_input_features, 128)
         self.fc2 = nn.Linear(128, num_classes)
 
 
@@ -46,11 +49,6 @@ class AudioCNN(nn.Module):
 
         
         x = x.view(x.size(0), -1)
-
-        if self.fc1 is None:
-            self.fc1_input_features = x.size(1)
-            self.fc1 = nn.Linear(self.fc1_input_features, 128)
-            self.fc1.to(x.device)
 
         x = F.relu(self.fc1(x))
         x = self.fc2(x)

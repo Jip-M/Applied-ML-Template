@@ -20,7 +20,7 @@ app = FastAPI(
     """
 )
 
-# Allow CORS for local development (Swagger UI, etc.)
+# Allow CORS for local development (Swagger UI)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -29,14 +29,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-CLASS_NAMES = ["Pipistrellus pipistrellus", "Myotis daubentonii"]
+CLASS_NAMES  = ["pipistrellus", "noctula", "auritus", "albescens"]
 
 # Load model (for now)
 def load_model():
     num_classes = len(CLASS_NAMES)
     learning_rate = 0.001
     model = AudioCNN(num_classes=num_classes, learning_rate=learning_rate, number_of_epochs=5)
-    # model.load_state_dict(torch.load('path_to_model.pt', map_location=torch.device('cpu')))
+    model.load_state_dict(torch.load('trained_model\CNN.pt', map_location=torch.device('cpu')))
     model.eval()
     return model
 
@@ -84,18 +84,22 @@ async def predict(
             audio_path = sample_path
             use_temp = False
         try:
-            # Inline prediction logic (was predict_from_path)
             slices, sr = preprocess(audio_path)
             if not slices or len(slices) == 0:
                 raise ValueError("Audio could not be processed.")
             all_probs = []
             for x in slices:
+                # Only process slices with the expected shape
+                if x.shape != (512, 1024):
+                    continue
                 x = (x - np.mean(x)) / (np.std(x) + 1e-8)
                 x_tensor = torch.tensor(x).unsqueeze(0).unsqueeze(0).float()
                 with torch.no_grad():
                     logits = model(x_tensor)
                     probs = torch.softmax(logits, dim=1).cpu().numpy()[0]
                     all_probs.append(probs)
+            if len(all_probs) == 0:
+                raise ValueError("No valid slices with shape (512, 1024) found for prediction.")
             all_probs = np.array(all_probs)
             avg_probs = np.mean(all_probs, axis=0)
             pred_idx = int(np.argmax(avg_probs))

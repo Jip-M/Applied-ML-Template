@@ -5,8 +5,9 @@ import tempfile
 from pydub import AudioSegment, effects
 import librosa
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
-import os
+from project_name.data.download_data import raw_path, data_path, label_path
 
 # UNDERSTANDING PREPROCESS PARAMETERS FOR CORRECT DIMENSIONS
 # Number of frames fixed at 1024, as this is what model expects.
@@ -60,8 +61,8 @@ def preprocess(
     
     """
     # filecheck
-    if not filepath.endswith(".wav"):
-        raise ValueError("Input file must be a .wav file.")
+    # if not filepath.endswith(".wav"):
+    #     raise ValueError("Input file must be a .wav file.")
     # length check
     raw = AudioSegment.from_file(filepath)
     if raw.duration_seconds > allowed_length:
@@ -137,9 +138,6 @@ def preprocess(
     return slices, sr
 
 
-# def filter_slices(slices, id):
-
-
 # Plot the spectrogram
 def plot_spectrogram(
     S,
@@ -177,6 +175,7 @@ def plot_spectrogram(
         fmin=fmin,
         fmax=fmax,
         hop_length=hop_length,
+        ax=ax
     )
     plt.colorbar(format="%+2.0f dB")
     plt.title(f"{title}")
@@ -189,6 +188,55 @@ def plot_spectrogram(
     else:
         plt.savefig(path)
     plt.close()
+
+
+def preprocess_all_data(df: pd.DataFrame, species_selection: list[str]):
+    """
+    This function preprocesses all data
+    """
+    labels = []
+
+    # Prevent class imbalance
+    max = 100
+    counts = [0, 0, 0, 0]
+
+    for index, row in df.iterrows():
+        file_id = row["id"]
+        species_id = species_selection.index(row["species"])
+
+        if counts[species_id] >= max:
+            continue
+
+        try:
+            slices, sr = preprocess(raw_path(file_id))
+            for idx, slice in enumerate(slices):
+                if counts[species_id] >= max:
+                    continue
+
+                if slice.shape != (512, 1024):
+                    print(f"wrong shape {slice.shape} for file: {file_id}")
+                    continue
+
+                out_path = data_path(file_id, idx)
+                arr = np.asarray(slice)
+                with open(out_path, "wb") as csv_file:
+                    np.savetxt(csv_file, arr, delimiter=",")
+                    # append successful labels
+                    labels.append([f"{file_id}_{idx}", f"{species_id}"])
+                counts[species_id] += 1
+
+        except Exception as e:
+            print(f"Could not process file {file_id}")
+            print(e)
+
+    labels = sorted(labels)
+
+    all_labels = np.array(labels)[:, 1]
+    unique, counts = np.unique(all_labels, return_counts=True)
+    print("Label count:", unique, counts)
+
+    with open(label_path(), "wb") as csv_file:
+        np.savetxt(csv_file, labels, delimiter=",", fmt="%s")
 
 
 # Important! Filtering does not work optimally yet for each bat type.
@@ -273,8 +321,6 @@ def filter_nonempty_max(
 
 # filtering seems to work for sample of myotis, pipistrellus,
 # something wrong for brown long eared bat..?
-
-
 
 
 # Functions below are not part of model pipeline

@@ -7,7 +7,7 @@ import requests
 from pathlib import Path
 
 metadata_dir = "dataset/metadata/grp_batsq_A"
-BASE_DIR = Path(os.getcwd()).resolve().parent.parent
+BASE_DIR = Path(os.getcwd()).resolve()
 
 def download_metadata():
     subprocess.run(["xeno-canto", "-m", "grp:\"bats\"", "q:\"A\""])
@@ -63,7 +63,6 @@ def create_folders():
     os.makedirs(BASE_DIR / "data" / "cleaned", exist_ok=True)
     os.makedirs(BASE_DIR / "data" / "raw", exist_ok=True)
     os.makedirs(BASE_DIR / "trained_model", exist_ok=True)
-    os.makedirs(BASE_DIR / "trained_model2", exist_ok=True)
 
 def download_file(file_id):
     try:
@@ -95,3 +94,4 @@ def download_files(df: pd.DataFrame):
     for index, row in df.iterrows():
         file_id = row["id"]
         download_file(file_id)
+

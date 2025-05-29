@@ -1,12 +1,11 @@
 from sklearn.model_selection import KFold
-from base_model import BaseModel
+from project_name.models.base_model import BaseModel
 import torch
 import numpy as np
 import os
 import pandas as pd
-from metrics import MultiClassMetrics
-from CNN import AudioCNN
-from base_model import BaseModel
+from project_name.models.metrics import MultiClassMetrics
+from project_name.models.CNN import AudioCNN
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
 

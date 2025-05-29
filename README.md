@@ -1,107 +1,39 @@
-# Applied ML Template 🛠️
+# 🧛🏽‍♂️🩸 Bat Audio Classifier 🦇🔊
 
-**Welcome to Applied Machine Learning!** This template is designed to streamline the development process and boost the quality of your code.
+**Welcome to our project** 
+This repository is a working pipeline that gets audio files, it transforms them conveniently and then are inserted in a CNN for the classification.
 
-Before getting started with your projects, we encourage you to carefully read the sections below and familiarise yourselves with the proposed tools.
-
-## Prerequisites
-Make sure you have the following software and tools installed:
-
-- **PyCharm**: We recommend using PyCharm as your IDE, since it offers a highly tailored experience for Python development. You can get a free student license [here](https://www.jetbrains.com/community/education/#students/).
-
-- **Pipenv**: Pipenv is used for dependency management. This tools enables users to easily create and manage virtual environments. To install Pipenv, use the following command:
-    ```bash
-    $ pip install --user pipenv
-    ```
-    For detailed installation instructions, [click here](https://pipenv.pypa.io/en/latest/installation.html).
-
-- **Git LFS**: Instead of committing large files to your repository, you should store and manage them using Git LFS. For installation information, [click here](https://github.com/git-lfs/git-lfs?utm_source=gitlfs_site&utm_medium=installation_link&utm_campaign=gitlfs#installing).
-
-## Getting Started
-### Setting up your own repository
-1. Fork this repository.
-2. Clone your fork locally.
-3. Configure a remote pointing to the upstream repository to sync changes between your fork and the original repository.
-   ```bash
-   git remote add upstream https://github.com/ivopascal/Applied-ML-Template
-   ```
-   **Don't skip this step.** We might update the original repository, so you should be able to easily pull our changes.
-   
-   To update your forked repo follow these steps:
-   1. `git fetch upstream`
-   2. `git rebase upstream/main`
-   3. `git push origin main`
-      
-      Sometimes you may need to use `git push --force origin main`. Only use this flag the first time you push after you rebased, and be careful as you might overwrite your teammates' changes.
-### Git LFS
-1. Set it up for your user account (only once, not each time you want to use it).
-    ```bash
-    git lfs install
-    ```
-2. Select the files that Git LFS should manage. To track all files of a certain type, you can use a wildcard as in the command below.
-    ```bash
-   git lfs track "*.psd"
-    ```
-3. Add _.gitattributes_ to the staging area.
-    ```bash
-    git add .gitattributes
-    ```
-That's all, you can commit and push as always. The tracked files will be automatically stored with Git LFS.
-
-### Pipenv
-This tool is incredibly easy to use. Let's **install** our first package, which you will all need in your projects.
-
-```bash
-pipenv install pre-commit
+**Prerequisites**
+In order to have a full functioning pipeline, there is a requirements.txt file that has all the needed dependencies. They have to be installed before running anything, otherwise this will result in errors. To install all the dependencies, you just have to write in the terminal: 
 ```
-
-After running this command, you will notice that two files were created, namely, _Pipfile_ and _Pipfile.lock_. _Pipfile_ is the configuration file that specifies all the dependencies in your virtual environment.
-
-To **uninstall** a package, you can run the command:
-```bash
-pipenv uninstall <package-name>
+pip install -r requirements.txt
 ```
+This script will let you automatically download all the dependencies.
 
-To **activate** the virtual environment, run `pipenv shell`. You can now use the environment as you wish. To **deactivate** the environment run the command `exit`.
+**Run the code**
+***Important!***
+Before getting started and running the pipeline, it is important to mention that the pipeline will atuomatically download the data locally. This implies that you need quite an amount of free space (up to 10 GB) to be able to run the pipeline without problems.
 
-If you **already have access to a Pipfile**, you can install the dependencies using `pipenv install`.
+To **run** the pipeline, you have to run this script:
+'''
+python -m project_name.models.pipeline 
+'''
 
-For a comprehensive list of commands, consult the [official documentation](https://pipenv.pypa.io/en/latest/cli.html).
+As a result, you will see multiple checkpoints (print statements) throughout the run that highlight when the data is getting prepared, saved, start to train the models, each epoch update of the accuracy and the loss of the main model (CNN), confustion matrix and the average accuracy after 10 (set as default in the pipeline, in the initialize_CNN() function) epochs.
 
-### Unit testing
-You are expected to test your code using unit testing, which is a technique where small individual components of your code are tested in isolation.
 
-An **example** is given in _tests/test_main.py_, which uses the standard _unittest_ Python module to test whether the function _hello_world_ from _main.py_ works as expected.
+**How to run the API app**
+In order to run the FastAPI, you have to open the integrated terminal from the folder called "api" and run this script:
+'''
+uvicorn api.main:app --reload
+'''
+After that, you have to enter this site in order to see it work:
 
-To run all the tests developed using _unittest_, simply use:
-```bash
-python -m unittest discover tests
-```
-If you wish to see additional details, run it in verbose mode:
-```bash
-python -m unittest discover -v tests
-```
+http://127.0.0.1:8000/docs#/
 
-### Pre-commit
-Another good coding practice is using pre-commit hooks. This is used to inspect the code before committing to ensure it matches your standards.
 
-In this course, we will be using two hooks (already configured in _.pre-commit-config.yaml_):
-- Unit testing
-- Flake8 (checks your code for errors, styling issues and complexity)
+On the site, you will see a **Prediction** section that will let you try the code out. To do this, you press on the section and press on the "Try it out" button. This will let you upload a ".wav" file. If you do not upload a file, there will be a built-in sample that you can use to judge the model's performance. As a result, you will see the prediction of the model below, in the *responses* section.
 
-Since we have already configured the hooks, all you need to do is run:
-```bash
-pre-commit install
-```
-Now `pre-commit` will automatically run whenever you want to commit something to the repository.
-
-## Get Coding
-You are now ready to start working on your projects.
-
-We recommend following the same folder structure as in the original repository. This will make it easier for you to have cleaner and consistent code, and easier for us to follow your progress and help you.
-
-Your repository should look something like this:
-```bash
 ├───data  # Stores .csv
 ├───models  # Stores .pkl
 ├───notebooks  # Contains experimental .ipynbs
@@ -121,6 +53,3 @@ Your repository should look something like this:
 ├───Pipfile
 ├───Pipfile.lock
 ├───README.md
-```
-
-**Good luck and happy coding! 🚀**

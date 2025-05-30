@@ -90,6 +90,6 @@ def run_pipeline():
     ConfusionMatrixDisplay(cm).plot()
     plt.show()
 
-# create_folders()
+create_folders()
 download_and_preprocess()
 run_pipeline()

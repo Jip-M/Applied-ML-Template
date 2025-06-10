@@ -22,7 +22,7 @@ else:
     st.info("CNN metrics file not found.")
 
 st.subheader("Logistic Regression Results")
-lr_metrics_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../trained_model/logreg_metrics.csv'))
+lr_metrics_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../trained_model/lr_metrics.csv'))
 if os.path.exists(lr_metrics_path):
     lr_metrics = pd.read_csv(lr_metrics_path)
     st.write("**Logistic Regression Evaluation Metrics:**")
@@ -42,5 +42,4 @@ st.write("""
 ### Evaluation Metrics
 - **Accuracy**: Proportion of correct predictions.
 - **Confusion Matrix**: Shows true vs. predicted classes.
-- **Confidence**: Model's certainty in its prediction.
 """)

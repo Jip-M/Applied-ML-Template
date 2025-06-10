@@ -19,7 +19,6 @@ def kfold_validation(X: np.ndarray, y: np.ndarray, k: int = 5):
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
     print("Using device:", device)
 
-
     validation_images, validation_labels = None, None
     for train_index, test_index in kf.split(X):
         train_images, test_images = X[train_index], X[test_index]
@@ -41,8 +40,8 @@ def kfold_validation(X: np.ndarray, y: np.ndarray, k: int = 5):
 
         predictions, probabilities = model.predict()
         
-        
-        accuracy = measurements(test_labels, predictions, probabilities)
+        is_last_fold = (test_index[-1] == X.shape[0] - 1)
+        accuracy = measurements(test_labels, predictions, probabilities, model_type="cnn", save_metrics=is_last_fold)
         accuracies.append(accuracy)
         model.plot_loss(train_losses, train_accuracies, title="Triaining")
 
@@ -159,7 +158,7 @@ def training_CNN():
     accuracy = metric.accuracy(test_labels, predictions)
 
     
-    measurements(test_labels, predictions, probabilities)
+    measurements(test_labels, predictions, probabilities, model_type="cnn")
     # model.plot_train_loss(train_losses, train_accuracies)
     # print("train losses:", len(train_losses),"train accuracies", len(train_accuracies))
     # print("losses shape:", len(losses), "accuracies shape:", len(accuracies))
@@ -189,7 +188,8 @@ def training_base(images, labels):
         base_model.fit()
 
         predictions_base, probabilities_base = base_model.predict()
-        accuracy = measurements(test_labels, predictions_base, probabilities_base)
+        is_last_fold = (test_index[-1] == X.shape[0] - 1)
+        accuracy = measurements(test_labels, predictions_base, probabilities_base, model_type="lr", save_metrics=is_last_fold)
         accuracies.append(accuracy)
     accuracies = np.array(accuracies)
     print("Base model mean accuracy after the 5 folds", np.mean(accuracies))
@@ -229,29 +229,40 @@ def evaluate_model(choose_epoch: int):
     # 
     # we need the probabilities for the ROC AUC and the predictions for the other metrics
     # predictions, probabilities = model.predict()
-    # measurements(test_labels, predictions, probabilities)
+    # measurements(test_labels, predictions, probabilities, model_type="cnn")
 
 
-def measurements(test_labels, predictions, probabilities, accuracies=None):
+def measurements(test_labels, predictions, probabilities, model_type="CNN", accuracies=None, save_metrics=False):
     metric = MultiClassMetrics()
     if accuracies is not None:
         average_accuracy = np.mean(accuracies)
         print(f"Average accuracy: {average_accuracy}")
 
     accuracy = metric.accuracy(test_labels, predictions)
-    
-    
     roc = metric.auroc(test_labels, probabilities)
-    print(f"CNN Test ROC AUC: {roc:.4f}")
-    # accuracies.append(accuracy)
-
     cm = metric.confusion(test_labels, predictions)
-    print(cm)
-        
-    print(f"CNN Test Accuracy: {accuracy:.4f}")
 
-    # ConfusionMatrixDisplay(cm).plot()
-    # plt.show()
+    if model_type.lower() == "cnn":
+        print(f"CNN Test ROC AUC: {roc:.4f}")
+        print(f"CNN Test Accuracy: {accuracy:.4f}")
+    else:
+        print(f"Logistic Regression Test ROC AUC: {roc:.4f}")
+        print(f"Logistic Regression Test Accuracy: {accuracy:.4f}")
+    print(cm)
+
+    if save_metrics:
+        import pandas as pd
+        metrics_dict = {
+            "Accuracy": [accuracy],
+            "ROC AUC": [roc],
+            "Confusion Matrix": [cm.tolist()]
+        }
+        metrics_df = pd.DataFrame(metrics_dict)
+        if model_type.lower() == "cnn":
+            metrics_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../trained_model/cnn_metrics.csv'))
+        else:
+            metrics_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../trained_model/lr_metrics.csv'))
+        metrics_df.to_csv(metrics_path, index=False)
     return accuracy
 
 def best_model():

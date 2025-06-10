@@ -70,7 +70,7 @@ if process:
         }
         if os.path.exists(model_path):
             num_classes = len(class_names)
-            model = AudioCNN(num_classes=num_classes, learning_rate=0.001, number_of_epochs=1)
+            model = AudioCNN(num_classes=num_classes, learning_rate=0.001, number_of_epochs=1, patience = 6)
             model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
             model.eval()
             all_probs = []

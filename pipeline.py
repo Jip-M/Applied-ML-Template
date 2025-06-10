@@ -262,6 +262,9 @@ def measurements(test_labels, predictions, probabilities, model_type="CNN", accu
             metrics_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../trained_model/cnn_metrics.csv'))
         else:
             metrics_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../trained_model/lr_metrics.csv'))
+        metrics_dir = os.path.dirname(metrics_path)
+        if not os.path.exists(metrics_dir):
+            os.makedirs(metrics_dir)
         metrics_df.to_csv(metrics_path, index=False)
     return accuracy
 

@@ -1,10 +1,6 @@
 import os
-import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import streamlit as st
-import torch
-import joblib
 from project_name.models.CNN import AudioCNN
 
 st.set_page_config(page_title="Model Results & Info")

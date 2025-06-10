@@ -1,6 +1,5 @@
 import sys
 import os
-import torch
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from project_name.data.preprocess import preprocess, plot_spectrogram
 

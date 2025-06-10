@@ -133,7 +133,7 @@ def preprocess_all_data(df: pd.DataFrame, species_selection):
     labels = []
 
     # Prevent class imbalance
-    max = 100
+    max = 280
     counts = [0, 0, 0, 0]
 
     for index, row in df.iterrows():
@@ -292,3 +292,4 @@ def plot_max_energy_histogram(
     plt.grid(True)
     plt.tight_layout()
     plt.show()
+

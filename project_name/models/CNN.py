@@ -13,9 +13,9 @@ class AudioCNN(nn.Module):
     def __init__(self, num_classes: int, learning_rate: float, number_of_epochs: int, patience: int,  save: bool = False):
         super(AudioCNN, self).__init__()
 
-        self.conv1 = nn.Conv2d(in_channels=1, out_channels=16, kernel_size=4, stride=3, padding=3)
-        self.conv2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=4, stride=3, padding=3)
-        self.conv3 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=4, stride=3, padding=3)
+        self.conv1 = nn.Conv2d(in_channels=1, out_channels=16, kernel_size=4, stride=3, padding=4)
+        self.conv2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=4, stride=3, padding=4)
+        self.conv3 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=4, stride=3, padding=4)
 
 
         self.pool = nn.MaxPool2d(kernel_size=3, stride=2)
@@ -167,7 +167,7 @@ class AudioCNN(nn.Module):
         f"Test Accuracy: {test_accuracy:.4f}", 
         f"Time: {(end - start):.2f} seconds")
 
-            if self.save is not None:
+            if self.save is True:
                 state_dict = self.state_dict()
                 
                 # Define the directory for this epoch

@@ -41,6 +41,7 @@ def kfold_validation(X: np.ndarray, y: np.ndarray, k: int = 5):
         predictions, probabilities = model.predict()
         
         is_last_fold = (test_index[-1] == X.shape[0] - 1)
+        
         accuracy = measurements(test_labels, predictions, probabilities, model_type="cnn", save_metrics=is_last_fold)
         accuracies.append(accuracy)
         model.plot_loss(train_losses, train_accuracies, title="Triaining")

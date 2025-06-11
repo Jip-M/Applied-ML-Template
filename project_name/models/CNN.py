@@ -6,11 +6,10 @@ import torch.optim as optim
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader, TensorDataset
 import time
-import os
 
 
 class AudioCNN(nn.Module):
-    def __init__(self, num_classes: int, learning_rate: float, number_of_epochs: int, patience: int,  save: bool = False):
+    def __init__(self, num_classes: int, learning_rate: float, number_of_epochs: int, patience: int):
         super(AudioCNN, self).__init__()
 
         self.conv1 = nn.Conv2d(in_channels=1, out_channels=16, kernel_size=4, stride=3, padding=4)
@@ -44,8 +43,6 @@ class AudioCNN(nn.Module):
         
         self.patience = patience
         
-        self.save = save
-        
     # def forward(self, x): # for multi-task learning, we return two outputs
     #     x = self.pool(F.relu(self.conv1(x)))
     #     x = self.pool(F.relu(self.conv2(x)))
@@ -68,13 +65,13 @@ class AudioCNN(nn.Module):
         x = self.fc2(x)
         return x
     
-    def early_stopping(self, loss, best_loss, epoch, epochs_no_improve, best_model_state=None):
+    def early_stopping(self, loss, best_loss, epoch, epochs_no_improve, best_model_state=None, verbose=True):
         stop = False
         if loss < best_loss:
             best_loss = loss
             epochs_no_improve = 0
-            best_model_state = self.state_dict()
-            print("we keep model state of epoch {}".format(epoch + 1))
+            best_model_state = (self.state_dict(), epoch + 1)
+            
         else:
             epochs_no_improve += 1
         
@@ -82,17 +79,19 @@ class AudioCNN(nn.Module):
         if epochs_no_improve >= self.patience:
             print(f"Early stopping triggered at epoch {epoch+1}")
             if best_model_state is not None:
-                self.load_state_dict(best_model_state)
+                self.load_state_dict(best_model_state[0])
+                print("Loaded best model state from epoch", best_model_state[1])
             # we change the number of epochs to the current epoch in order to plot the graph after
             self.num_epochs = epoch
             stop = True
-        return best_loss, epochs_no_improve, stop
+        return best_loss, epochs_no_improve, stop, best_model_state
 
-    def fit(self):
+    def fit(self, verbose=True):
         train_losses = []
         train_accuracies = []
         best_loss = float('inf')
         epochs_no_improve = 0
+        best_model_state = None
         if self.validation_data is not None:
             val_losses = []
             val_accuracies = []
@@ -130,23 +129,26 @@ class AudioCNN(nn.Module):
 
 
             if self.validation_data is not None:
-                print("the validation started")
+                if verbose:
+                    print("the validation started")
                 val_loss, val_accuracy = self.evaluate(self.validation_data)
                 val_losses.append(val_loss)
                 val_accuracies.append(val_accuracy)
                 
-                best_loss, epochs_no_improve, stop = self.early_stopping(loss, best_loss, epoch, epochs_no_improve)
+                best_loss, epochs_no_improve, stop, best_model_state = self.early_stopping(loss, best_loss, epoch, epochs_no_improve, best_model_state, verbose=verbose)
                 if stop is True:
-                    print("Early stopping triggered, training stopped.")
+                    if verbose:
+                        print("Early stopping triggered, training stopped.")
                     break
             else:
                 test_loss, test_accuracy = self.evaluate(self.test_data)
                 test_losses.append(test_loss)
                 test_accuracies.append(test_accuracy)
 
-                best_loss, epochs_no_improve, stop = self.early_stopping(loss, best_loss, epoch, epochs_no_improve)
+                best_loss, epochs_no_improve, stop, best_model_state = self.early_stopping(loss, best_loss, epoch, epochs_no_improve, best_model_state, verbose=verbose)
                 if stop is True:
-                    print("Early stopping triggered, training stopped.")
+                    if verbose:
+                        print("Early stopping triggered, training stopped.")
                     break
 
 
@@ -155,34 +157,20 @@ class AudioCNN(nn.Module):
             end = time.perf_counter()
             
             if self.validation_data is not None:
-                print(f"Epoch {epoch+1}/{self.num_epochs}, "
+                if verbose:
+                    print(f"Epoch {epoch+1}/{self.num_epochs}, "
         f"Train Loss: {epoch_loss:.4f}, "
         f"Validation Loss: {val_loss:.4f}, "
         f"Validation Accuracy: {val_accuracy:.4f}", 
         f"Time: {(end - start):.2f} seconds")
             else:
-                print(f"Epoch {epoch+1}/{self.num_epochs}, "
+                if verbose:
+                    print(f"Epoch {epoch+1}/{self.num_epochs}, "
         f"Train Loss: {epoch_loss:.4f}, "
         f"Test Loss: {test_loss:.4f}, "
         f"Test Accuracy: {test_accuracy:.4f}", 
         f"Time: {(end - start):.2f} seconds")
 
-            if self.save is True:
-                state_dict = self.state_dict()
-                
-                # Define the directory for this epoch
-                epoch_dir = os.path.join(os.path.dirname(__file__), "trained_model", f"epoch{epoch+1}")
-
-                # Create the directory if it doesn't exist
-                os.makedirs(epoch_dir, exist_ok=True)  # exist_ok=True avoids error if it already exists
-                
-                # Define the path to save the model
-                model_path = os.path.join(epoch_dir, "CNN" + f"_{epoch+1}" + ".pt")
-
-                # Save the state_dict
-                torch.save(state_dict, model_path)
-
-            # torch.save(state_dict, os.path.join(os.path.dirname(_file_), "trained_model", "CNN.pt"))
 
         # it returns these but they are not that important, just for the plots
         if self.validation_data is None:

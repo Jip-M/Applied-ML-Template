@@ -5,7 +5,7 @@ st.set_page_config(page_title="About Bats")
 st.sidebar.markdown("### Navigation\nSelect a page above.")
 st.title("About Bats")
 st.write("""
-### Why classify bat audio??
+### Why classify bat audio?
 This is important for conservation, biodiversity monitoring, and ecological research.
 """)
 
@@ -36,6 +36,7 @@ bat_info = [
     },
 ]
 
+# loop over the bats information, print an image and the description.
 for bat in bat_info:
     st.subheader(bat["name"])
     img_path = os.path.join(os.path.dirname(__file__), "about_bats_images", os.path.basename(bat["img"]))

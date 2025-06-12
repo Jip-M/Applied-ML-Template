@@ -26,6 +26,7 @@ sample_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../d
 
 uploaded_file = st.file_uploader("Upload a .wav file", type=["wav"])
 
+# give user option to select a sample.
 sample_files = []
 if os.path.exists(sample_folder):
     sample_files = [f for f in os.listdir(sample_folder) if f.endswith('.wav')]
@@ -37,7 +38,7 @@ else:
     selected_sample = None
 
 process = st.button("Preprocess and predict")
-
+# if button is pressed, preprocess and predict.
 if process:
     file_path = None
     if uploaded_file is not None:
@@ -56,6 +57,7 @@ if process:
         sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
         from project_name.models.CNN import AudioCNN
         model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../trained_model/CNN.pt'))
+        # names and respective images.
         class_names = [
             "Pipistrellus pipistrellus - Common Pipistrelle",
             "Nyctalus noctula - Common Noctule",
@@ -70,6 +72,7 @@ if process:
         }
         if os.path.exists(model_path):
             num_classes = len(class_names)
+            # initialize CNN as the saved one.
             model = AudioCNN(num_classes=num_classes, learning_rate=0.001, number_of_epochs=1, patience = 6)
             model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
             model.eval()
@@ -79,6 +82,7 @@ if process:
                     continue
                 x = (x - np.mean(x)) / (np.std(x) + 1e-8)
                 x_tensor = torch.tensor(x).unsqueeze(0).unsqueeze(0).float()
+                # get logits to be able to predict and show confidence.
                 with torch.no_grad():
                     logits = model(x_tensor)
                     probs = torch.softmax(logits, dim=1).cpu().numpy()[0]

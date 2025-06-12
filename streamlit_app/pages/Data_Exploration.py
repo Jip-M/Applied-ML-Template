@@ -12,9 +12,9 @@ Explore the dataset: listen to audio samples, view spectrograms, etc.
 """)
 
 sample_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../data/sample'))
-
 uploaded_file = st.file_uploader("Upload a .wav file", type=["wav"])
 
+# give user option to select a sample.
 sample_files = []
 if os.path.exists(sample_folder):
     sample_files = [f for f in os.listdir(sample_folder) if f.endswith('.wav')]
@@ -26,7 +26,7 @@ else:
     selected_sample = None
 
 process = st.button("Show Spectrograms")
-
+# if button is pressed, preprocess and show spectrograms.
 if process:
     file_path = None
     if uploaded_file is not None:

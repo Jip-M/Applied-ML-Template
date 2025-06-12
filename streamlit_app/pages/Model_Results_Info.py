@@ -14,7 +14,16 @@ st.write("""
 This project uses a convolutional neural network and a logistic regression as a base model to classify bat species from audio recordings.
 """)
 
-def plot_confusion_matrix(cm, class_names, title):
+def plot_confusion_matrix(cm: np.ndarray, class_names: list[str], title: str) -> plt.Figure:
+    """
+    Plots a confusion matrix using seaborn heatmap.
+    Args:
+        cm (np.ndarray): Confusion matrix.
+        class_names (list): List of class names.
+        title (str): Title for the plot.
+    Returns:
+        matplotlib.figure.Figure: a figure of the confusion matrix.
+    """
     fig, ax = plt.subplots(figsize=(5, 4))
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=class_names, yticklabels=class_names, ax=ax)
     ax.set_xlabel('Predicted')
@@ -30,6 +39,7 @@ class_names = [
     "Myotis albescens"
 ]
 
+# get the saved metrics for the CNN and display the results.
 st.subheader("CNN Model Results")
 cnn_metrics_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../trained_model/cnn_metrics.csv'))
 if os.path.exists(cnn_metrics_path):
@@ -39,12 +49,14 @@ if os.path.exists(cnn_metrics_path):
     if 'ROC AUC' in cnn_metrics.columns:
         st.metric(label="ROC AUC", value=f"{cnn_metrics['ROC AUC'][0]:.4f}")
     if 'Confusion Matrix' in cnn_metrics.columns:
+        
         cm = np.array(cnn_metrics['Confusion Matrix'][0].replace('[','').replace(']','').split(','), dtype=int).reshape(len(class_names), len(class_names))
         st.write("**Confusion Matrix:**")
         st.pyplot(plot_confusion_matrix(cm, class_names, "CNN Confusion Matrix"))
 else:
     st.info("CNN metrics file not found.")
 
+# get the saved metrics for the logistic regression and display the results.
 st.subheader("Logistic Regression Results")
 lr_metrics_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../trained_model/lr_metrics.csv'))
 if os.path.exists(lr_metrics_path):

@@ -3,6 +3,7 @@ import os
 import joblib
 import numpy as np
 from utils import preprocess_audio
+from bat_classifier.models.base_model import BaseModel
 
 st.set_page_config(page_title="Logistic Regression Evaluation")
 st.sidebar.markdown("### Navigation\nSelect a page above.")
@@ -48,7 +49,9 @@ if process:
     if file_path:
         slices, sr = preprocess_audio(file_path)
         st.success("Audio preprocessed!")
-        model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../trained_model/lr.pkl'))
+        model_path_coef = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../trained_model/coef.npy'))
+        model_path_intercept = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../trained_model/intercept.npy'))
+        logreg_model = BaseModel()
         # names and respective images.
         class_names = [
             "Pipistrellus pipistrellus - Common Pipistrelle",
@@ -62,15 +65,22 @@ if process:
             2: "about_bats_images/Plecotus auritus.jpg",
             3: "about_bats_images/Myotis albescens.jpg"
         }
-        if os.path.exists(model_path):
-            import joblib
+        if os.path.exists(model_path_coef):
             import numpy as np
-            logreg_model = joblib.load(model_path)
+            # since we do not train the model, we load the model, but we do not have the classes, so we initialize
+            coef = np.load(model_path_coef)
+            logreg_model.model.coef_ = coef
+            intercept = np.load(model_path_intercept)
+            logreg_model.model.intercept_ = intercept
+
+            # Set the classes for the logistic regression model
+            logreg_model.model.classes_ = np.array([0, 1, 2, 3])  # Assuming classes are 0, 1, 2, 3
+            
             # check shape of slices and flatten them
             features = [s.flatten() for s in slices if s.shape == (512, 1024)]
             if features:
                 features = np.mean(features, axis=0).reshape(1, -1)
-                pred = logreg_model.predict(features)[0]
+                pred = int(logreg_model.model.predict(features))
                 st.success(f"Predicted class: {class_names[pred]}")
                 # Show bat image
                 img_path = os.path.join(os.path.dirname(__file__), "about_bats_images", os.path.basename(bat_img_map[pred]))
@@ -82,3 +92,4 @@ if process:
             st.warning("Trained logistic regression model not found.")
     else:
         st.warning("Please upload a file or select a sample")
+

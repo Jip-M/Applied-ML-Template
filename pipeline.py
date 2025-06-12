@@ -1,18 +1,18 @@
 from sklearn.model_selection import KFold, train_test_split
-from project_name.models.base_model import BaseModel
+from bat_classifier.models.base_model import BaseModel
 import torch
 import numpy as np
 import os
 import pandas as pd
-from project_name.models.metrics import MultiClassMetrics
-from project_name.models.CNN import AudioCNN
+from bat_classifier.models.metrics import MultiClassMetrics
+from bat_classifier.models.CNN import AudioCNN
 from sklearn.metrics import ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
 import time
 
 
-from project_name.data.download_data import create_folders, download_metadata, load_metadata, download_files
-from project_name.data.preprocess import preprocess_all_data
+from bat_classifier.data.download_data import create_folders, download_metadata, load_metadata, download_files
+from bat_classifier.data.preprocess import preprocess_all_data
 
 def kfold_validation(X: np.ndarray, y: np.ndarray, k: int = 5):
     kf = KFold(n_splits=k, shuffle=True, random_state=22)

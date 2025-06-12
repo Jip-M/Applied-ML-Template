@@ -3,9 +3,9 @@ from pydantic import BaseModel
 import os
 import numpy as np
 import torch
-from project_name.data.preprocess import preprocess
+from bat_classifier.data.preprocess import preprocess
 
-from project_name.models.CNN import AudioCNN
+from bat_classifier.models.CNN import AudioCNN
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
@@ -17,7 +17,7 @@ app = FastAPI(
     Error Handling:
     - Returns HTTP 400 for invalid files or unsupported formats.
     - Returns HTTP 500 for internal errors.
-    """
+    """,
 )
 
 # Allow CORS for local development (Swagger UI)
@@ -29,52 +29,80 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-CLASS_NAMES  = ["Pipistrellus pipistrellus - Common Pipistrelle", "Nyctalus noctula - Common Noctule", "Plecotus auritus - Brown Long-eared Bat",
-                "Myotis albescens - Silver-tipped Myotis"]
+CLASS_NAMES = [
+    "Pipistrellus pipistrellus - Common Pipistrelle",
+    "Nyctalus noctula - Common Noctule",
+    "Plecotus auritus - Brown Long-eared Bat",
+    "Myotis albescens - Silver-tipped Myotis",
+]
+
 
 def load_model():
     num_classes = len(CLASS_NAMES)
     learning_rate = 0.001
-    model = AudioCNN(num_classes=num_classes, learning_rate=learning_rate, number_of_epochs=5)
-    model.load_state_dict(torch.load('trained_model\CNN.pt', map_location=torch.device('cpu')))
+    model = AudioCNN(
+        num_classes=num_classes, learning_rate=learning_rate, number_of_epochs=5
+    )
+    model.load_state_dict(
+        torch.load("trained_model\CNN.pt", map_location=torch.device("cpu"))
+    )
     model.eval()
     return model
 
+
 model = load_model()
+
 
 class PredictionResponse(BaseModel):
     class_name: str
     confidence: float
 
-@app.post("/predict/", response_model=PredictionResponse, summary="Classify a bat audio file", tags=["Prediction"])
+
+@app.post(
+    "/predict/",
+    response_model=PredictionResponse,
+    summary="Classify a bat audio file",
+    tags=["Prediction"],
+)
 async def predict(
     file: UploadFile = File(
         default=None,
-        description="Optional .wav file. If not provided, the built-in sample will be used."
+        description="Optional .wav file. If not provided, the built-in sample will be used.",
     )
 ):
     """
     Upload a .wav audio file. If no file is provided, the built-in sample will be used.
     Only .wav files are accepted.
-    
+
     **Request:**
     - file: .wav audio file
-    
+
     **Response:**
     - class_name: Predicted bat species (string)
     - confidence: Model confidence (float, 0-1)
     """
     import tempfile
-    sample_path = os.path.join("data", "sample", "XC912090 - Gewone dwergvleermuis - Pipistrellus pipistrellus.wav")
+
+    sample_path = os.path.join(
+        "data",
+        "sample",
+        "XC912090 - Gewone dwergvleermuis - Pipistrellus pipistrellus.wav",
+    )
     use_temp = False
     audio_path = None
     try:
         # Treat empty file or empty filename as no file provided
-        if file is not None and getattr(file, 'filename', None) and file.filename.strip():
-            if not file.filename.lower().endswith('.wav'):
-                raise HTTPException(status_code=400, detail="Only .wav files are supported.")
+        if (
+            file is not None
+            and getattr(file, "filename", None)
+            and file.filename.strip()
+        ):
+            if not file.filename.lower().endswith(".wav"):
+                raise HTTPException(
+                    status_code=400, detail="Only .wav files are supported."
+                )
             contents = await file.read()
-            with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as tmp:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
                 tmp.write(contents)
                 audio_path = tmp.name
             use_temp = True
@@ -99,7 +127,9 @@ async def predict(
                     probs = torch.softmax(logits, dim=1).cpu().numpy()[0]
                     all_probs.append(probs)
             if len(all_probs) == 0:
-                raise ValueError("No valid slices with shape (512, 1024) found for prediction.")
+                raise ValueError(
+                    "No valid slices with shape (512, 1024) found for prediction."
+                )
             all_probs = np.array(all_probs)
             avg_probs = np.mean(all_probs, axis=0)
             pred_idx = int(np.argmax(avg_probs))
@@ -119,9 +149,12 @@ async def predict(
             os.remove(audio_path)
         raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
 
+
 @app.get("/", summary="API Home", tags=["Info"])
 def root():
     """
     Welcome to the Bat Audio Classification API. Use /predict/ to classify bat audio files
     """
-    return {"message": "Welcome to the Bat Audio Classification API. Use /predict/ to classify bat audio files."}
+    return {
+        "message": "Welcome to the Bat Audio Classification API. Use /predict/ to classify bat audio files."
+    }

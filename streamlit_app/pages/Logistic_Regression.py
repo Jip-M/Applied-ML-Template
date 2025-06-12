@@ -20,9 +20,9 @@ This page allows you to upload an audio file or select a sample from the dataset
 """)
 
 sample_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../data/sample'))
-
 uploaded_file = st.file_uploader("Upload a .wav file", type=["wav"])
 
+# give user option to select a sample.
 sample_files = []
 if os.path.exists(sample_folder):
     sample_files = [f for f in os.listdir(sample_folder) if f.endswith('.wav')]
@@ -35,6 +35,7 @@ else:
 
 process = st.button("Preprocess and predict (Logistic Regression)")
 
+# if button is pressed, preprocess and predict.
 if process:
     file_path = None
     if uploaded_file is not None:
@@ -48,6 +49,7 @@ if process:
         slices, sr = preprocess_audio(file_path)
         st.success("Audio preprocessed!")
         model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../trained_model/lr.pkl'))
+        # names and respective images.
         class_names = [
             "Pipistrellus pipistrellus - Common Pipistrelle",
             "Nyctalus noctula - Common Noctule",
@@ -64,6 +66,7 @@ if process:
             import joblib
             import numpy as np
             logreg_model = joblib.load(model_path)
+            # check shape of slices and flatten them
             features = [s.flatten() for s in slices if s.shape == (512, 1024)]
             if features:
                 features = np.mean(features, axis=0).reshape(1, -1)

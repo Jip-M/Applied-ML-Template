@@ -8,16 +8,25 @@ st.set_page_config(page_title="Logistic Regression Evaluation")
 st.sidebar.markdown("### Navigation\nSelect a page above.")
 st.title("Logistic Regression Model Evaluation")
 
-st.write("""
+st.write(
+    """
 ## Logistic Regression Model Evaluation
 
 This page allows you to upload an audio file or select a sample from the dataset to evaluate the trained logistic regression model. The model will predict the class of the audio based on the features extracted from it.
+
+\nThe provided dataset contains a random selection of audio recordings of various bat species. 
+         These have either been recorded in the Netherlands by colleagues at the Dutch ecological research company Gaia ('field') 
+         or taken from the open-access database Xeno-Canto ('XC'). 
+         The model was trained on the quality-A data of Xeno-Canto, whereas the XC samples are of quality B.
 
 ### How to Use
 1. Upload a `.wav` file or select a sample from the dataset.
 2. Click on "Preprocess and predict (Logistic Regression)".
 3. View the predicted class for the audio.
-""")
+         
+
+"""
+)
 
 sample_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../data/sample'))
 uploaded_file = st.file_uploader("Upload a .wav file", type=["wav"])

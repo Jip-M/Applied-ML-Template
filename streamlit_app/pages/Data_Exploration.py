@@ -9,6 +9,9 @@ st.sidebar.markdown("### Navigation\nSelect a page above.")
 st.title("Data Exploration")
 st.write("""
 Explore the dataset: listen to audio samples, view spectrograms, etc.
+         \nThe provided dataset contains a random selection of audio recordings of various bat species. 
+         These have either been recorded in the Netherlands by colleagues at the Dutch ecological research company Gaia ('field') 
+         or taken from the open-access database Xeno-Canto ('XC'). 
 """)
 
 sample_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../data/sample'))

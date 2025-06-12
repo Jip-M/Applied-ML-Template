@@ -16,10 +16,10 @@ import os
 # Hyperparameter is segment_length (t), which impacts required hop_length
 #
 # required hoplength for spectrogram:
-# t             sr    hop_length
-# 0.1s	1024	256000	25
-# 0.5s	1024	256000	125
-# 1.0s	1024	256000	250
+# t     #frames  sr      hop_length
+# 0.1s	1024	 256000	 25
+# 0.5s	1024	 256000	 125
+# 1.0s	1024	 256000	 250
 #
 # segment_length = hop_length * (256000 / 1024)
 
@@ -27,21 +27,44 @@ import os
 # Preprocess audio file
 # This function preprocesses an audio file, normalizes it, computes the mel spectrogram, and returns segments of the spectrogram.
 def preprocess(
-    filepath,
-    fmin=17000,
-    fmax=80000,
-    n_fft=4096,
-    hop_length=125,  # if you change this, change segment_length accordingly
-    segment_length=0.5,  # in s, if you change this, change hop_length accordingly
-    allowed_length=60,  # in s
-    target_sr=256000,  # resample to highest expected sampling rate
-    to_db=True,  # needs to be true, otherwise the spectrogram is ugly
-    mean_std=True,  # if True, normalize mean, std
+    filepath:str,
+    fmin:int=17000,
+    fmax:int=80000,
+    n_fft:int=4096,
+    hop_length:int=125,  # if you change this, change segment_length accordingly
+    segment_length:float=0.5,  # in s, if you change this, change hop_length accordingly
+    allowed_length:float=60.0,  # in s
+    target_sr:int=256000,  # resample to highest expected sampling rate
+    to_db:bool=True,  # True recommended, model performs better with dB scale
+    mean_std:bool=True,  # True recommended, model performs better with normalized spectrogram
 ):
-    # filecheck
-    # if not filepath.endswith(".wav"):
-    #     raise ValueError("Input file must be a .wav file.")
-    # length check
+    """
+    This function preprocesses a single audio file by:
+    normalizing its volume, computing the mel spectrogram,
+    normalizing mean and standard deviation, converting to dB scale,
+    and slicing the spectrogram into segments of a specified length.
+
+    IMPORTANT: Change segment_length / hop_length in accordance with the formula:
+        segment_length = hop_length * (256000 / 1024)
+    This ensures that the mel spectrogram has the correct dimensions (512, 1024) for each time slice.
+
+    Args:
+        filepath (str): Path to the audio file.
+        fmin (int): Minimum frequency for the mel spectrogram in Hz.
+        fmax (int): Maximum frequency for the mel spectrogram in Hz.
+        n_fft (int): Length of the FFT window.
+        hop_length (int): Number of samples between successive frames, determines time scale in x-axis.
+        segment_length (float): Desired length of each audio segment in seconds.
+        allowed_length (float): Maximum allowed length of the audio file in seconds.
+        target_sr (int): Target sample rate for librosa, set to highest expected sampling rate.
+        to_db (bool): Recommended. Whether to convert the spectrogram to dB scale.
+        mean_std (bool): Recommended. Whether to normalize by mean and standard deviation.
+
+    Returns:
+        tuple: A tuple containing:
+            - list of numpy arrays, representing mel spectrograms of size (512, 1024) for each time slice.
+            - int representing the sample rate of the audio file.
+    """
     raw = AudioSegment.from_file(filepath)
     if raw.duration_seconds > allowed_length:
         raise ValueError(
@@ -74,7 +97,6 @@ def preprocess(
         fmax=fmax,
     )
 
-
     # Normalize by mean and std, greatly improves spectrogram quality
     if mean_std:
         S = (S - np.mean(S)) / np.std(S)
@@ -103,12 +125,25 @@ def preprocess(
         #      slice = S[:, -frames_per_segment:]
         slices.append(slice)
 
-
     return slices, sr
 
 
-
 def plot_spectrogram(S, sr, fmin=10000, fmax=80000, hop_length=512, hline = None):
+    """
+    This function plots a mel spectrogram using librosa's display module.
+
+    Args:
+        S (numpy.ndarray): Mel spectrogram to plot, shape (512, 1024).
+        sr (int): Sample rate of the audio.
+        fmin (int): Minimum frequency for the spectrogram in Hz.
+        fmax (int): Maximum frequency for the spectrogram in Hz.
+        hop_length (int): Number of samples between successive frames, determines time scale in x-axis.
+        hline (tuple, optional): Tuple of two frequencies to draw horizontal lines on the plot. 
+            This can be used to visualize frequency bands of interest, for example when debugging. 
+
+    Returns:
+        Figure showing the mel spectrogram.
+    """
     fig, ax = plt.subplots(figsize=(12, 6))
     img = librosa.display.specshow(
         S,
@@ -129,7 +164,17 @@ def plot_spectrogram(S, sr, fmin=10000, fmax=80000, hop_length=512, hline = None
     return fig
 
 
-def preprocess_all_data(df: pd.DataFrame, species_selection):
+def preprocess_all_data(df: pd.DataFrame, species_selection:list[str]):
+    """
+    This function preprocesses all audio files in the given DataFrame,
+    with a cutoff point for the number of segments per species to prevent class imbalance.
+    It saves the preprocessed segments as CSV files and a coresponding labels file.
+    Returns nothing.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing audio file metadata with columns "id" and "species".
+        species_selection (list[str]): List of species names to filter the metadata DataFrame on.
+    """
     labels = []
 
     # Prevent class imbalance
@@ -175,121 +220,4 @@ def preprocess_all_data(df: pd.DataFrame, species_selection):
         np.savetxt(csv_file, labels, delimiter=",", fmt="%s")
 
 
-# Important! Filtering does not work optimally yet for each bat type.
-# hyperparameter -30db
-def filter_nonempty_max(
-    slices,
-    bat_min_freq,
-    bat_max_freq,
-    threshold_db = -30,
-    # parameters for mel_freqs must be equal to preprocess parameters
-    n_mels = 512,
-    fmin = 17000,
-    fmax = 80000,
-    save_dir = None,
-)-> tuple[list, list]:
-
-
-    # Convert expected bat frequency range to Mel bin indices
-    mel_freqs = librosa.mel_frequencies(n_mels=n_mels, fmin=fmin, fmax=fmax)
-    bat_bins = np.where((mel_freqs >= bat_min_freq) & (mel_freqs <= bat_max_freq))[0]
-
-    filtered = []
-    empty = []
-    k = 0
-    # Determine for each slice whether a bat call might be present or not
-    for S in slices:
-        if save_dir:
-            savepath = os.path.join(save_dir, f"plot_{k}.png")
-        else:
-            savepath = None
-
-        # Max energy in bat bins (more negative means quieter)
-        max_energy = np.max(S[bat_bins, :])
-
-        if max_energy > threshold_db:
-            filtered.append(S)
-            print(f"slice kept ({k})\nmax energy: {max_energy:.2f} dB")
-            plot_spectrogram(
-                S,
-                path=savepath,
-                title=f"kept, max, db: {max_energy:.2f}",
-                hline=(bat_min_freq, bat_max_freq),
-            )
-        else:
-            empty.append(S)
-            print(f"slice deleted ({k})\nmax energy: {max_energy:.2f} dB")
-            plot_spectrogram(
-                S,
-                path=savepath,
-                title=f"deleted, max, db: {max_energy:.2f}",
-                hline=(bat_min_freq, bat_max_freq),
-            )
-        k += 1
-    return filtered, empty
-
-
-# filtering seems to work for sample of myotis, pipistrellus,
-# something wrong for brown long eared bat..?
-
-
-# Functions below are not part of model pipeline
-
-def plot_mean_energy_histogram(
-    slices,
-    # parameters for mel_freqs must be equal to parameters used for preprocess function
-    fmin = 17000,
-    fmax = 80000,
-    n_mels = 512,
-    bat_min_freq = 41000,
-    bat_max_freq = 48000,
-    title = "Histogram of Mean Energy in Bat Frequency Band",
-):
-    # Get mel frequency bins
-    mel_freqs = librosa.mel_frequencies(n_mels=n_mels, fmin=fmin, fmax=fmax)
-    bat_bins = np.where((mel_freqs >= bat_min_freq) & (mel_freqs <= bat_max_freq))[0]
-
-    # Compute mean energy in the bat frequency bins for each slice
-    mean_energies = [np.mean(S[bat_bins, :]) for S in slices]
-
-    # Plot histogram
-    plt.figure(figsize=(8, 4))
-    plt.hist(mean_energies, bins=100, color="purple", edgecolor="black")
-    plt.title(f"{title}")
-    plt.xlabel("Mean Energy (dB)")
-    plt.ylabel("Number of Slices")
-    plt.grid(True)
-    plt.tight_layout()
-    plt.show()
-
-    return mean_energies
-
-
-def plot_max_energy_histogram(
-    slices,
-    bat_min_freq,
-    bat_max_freq,
-    title="Histogram of Mean Energy in Bat Frequency Band",
-    # parameters for mel_freqs must be equal to parameters used for preprocess function
-    fmin = 17000,
-    fmax = 80000,
-    n_mels = 512,
-):
-    # Get mel frequency bins
-    mel_freqs = librosa.mel_frequencies(n_mels=n_mels, fmin=fmin, fmax=fmax)
-    bat_bins = np.where((mel_freqs >= bat_min_freq) & (mel_freqs <= bat_max_freq))[0]
-
-    # compute max energies
-    energies = [np.max(S[bat_bins, :]) for S in slices]
-    # Compute mean energy in the bat frequency bins for each slice
-
-    # Plot histogram
-    plt.figure(figsize=(8, 4))
-    plt.hist(energies, bins=50, color="purple", edgecolor="black")
-    plt.title(f"{title}")
-    plt.xlabel("Mean Energy (dB)")
-    plt.ylabel("Number of Slices")
-    plt.grid(True)
-    plt.tight_layout()
-    plt.show()
 

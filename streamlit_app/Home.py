@@ -18,5 +18,5 @@ This app allows you to explore, preprocess, and classify bat audio recordings us
 - **Model Evaluation:** Upload or select an audio file to get predictions from the trained CNN model.
 - **Model Results & Info:** View model performance, evaluation metrics, and a summary of results.
 
-Navigate using the sidebar to explore data, train models, and evaluate predictions. Each page is designed to help you understand and interact with the bat audio classification pipeline.
+Navigate using the sidebar to explore data and generate predictions. Each page is designed to help you understand and interact with the bat audio classification pipeline.
 """)

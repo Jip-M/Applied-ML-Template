@@ -34,12 +34,10 @@ st.subheader("CNN Model Results")
 cnn_metrics_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../trained_model/cnn_metrics.csv'))
 if os.path.exists(cnn_metrics_path):
     cnn_metrics = pd.read_csv(cnn_metrics_path)
-    # Show accuracy and ROC AUC as separate metrics
     if 'Accuracy' in cnn_metrics.columns:
         st.metric(label="Accuracy", value=f"{cnn_metrics['Accuracy'][0]:.4f}")
     if 'ROC AUC' in cnn_metrics.columns:
         st.metric(label="ROC AUC", value=f"{cnn_metrics['ROC AUC'][0]:.4f}")
-    # Show confusion matrix as heatmap
     if 'Confusion Matrix' in cnn_metrics.columns:
         cm = np.array(cnn_metrics['Confusion Matrix'][0].replace('[','').replace(']','').split(','), dtype=int).reshape(len(class_names), len(class_names))
         st.write("**Confusion Matrix:**")
@@ -51,12 +49,10 @@ st.subheader("Logistic Regression Results")
 lr_metrics_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../trained_model/lr_metrics.csv'))
 if os.path.exists(lr_metrics_path):
     lr_metrics = pd.read_csv(lr_metrics_path)
-    # Show accuracy and ROC AUC as separate metrics
     if 'Accuracy' in lr_metrics.columns:
         st.metric(label="Accuracy", value=f"{lr_metrics['Accuracy'][0]:.4f}")
     if 'ROC AUC' in lr_metrics.columns:
         st.metric(label="ROC AUC", value=f"{lr_metrics['ROC AUC'][0]:.4f}")
-    # Show confusion matrix as heatmap
     if 'Confusion Matrix' in lr_metrics.columns:
         cm = np.array(lr_metrics['Confusion Matrix'][0].replace('[','').replace(']','').split(','), dtype=int).reshape(len(class_names), len(class_names))
         st.write("**Confusion Matrix:**")

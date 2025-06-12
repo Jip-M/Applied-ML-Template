@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader, TensorDataset
 from sklearn.metrics import accuracy_score
 import time
 from typing import Optional, Tuple
+import numpy as np
 
 class AudioCNN(nn.Module):
     def __init__(self, num_classes: int, learning_rate: float, number_of_epochs: int, patience: int) -> None:

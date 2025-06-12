@@ -17,7 +17,7 @@ On average, bats give birth to only one pup per year,
 which makes their populations particularly sensitive to environmental changes.
 \nThis vulnerability is why Dutch and European law requires that bats be protected. 
 As a result, ecological assessment is mandatory before any construction or renovation activities, 
-helping to prevent the decline—or even extinction—of local bat species.
+helping to prevent the decline, or even extinction, of local bat species.
         
 """
 )

@@ -1,7 +1,8 @@
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from project_name.data.preprocess import preprocess, plot_spectrogram
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from bat_classifier.data.preprocess import preprocess, plot_spectrogram
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -17,7 +18,14 @@ def preprocess_audio(filepath: str) -> tuple[list[np.ndarray], int]:
     slices, sr = preprocess(filepath)
     return slices, sr
 
-def plot_audio_spectrogram(slice: np.ndarray, sr: int, fmin: int = 10000, fmax: int = 80000, hop_length: int = 512) -> plt.Figure:
+
+def plot_audio_spectrogram(
+    slice: np.ndarray,
+    sr: int,
+    fmin: int = 10000,
+    fmax: int = 80000,
+    hop_length: int = 512,
+) -> plt.Figure:
     """
     Plot the spectrogram of the audio.
     Args:

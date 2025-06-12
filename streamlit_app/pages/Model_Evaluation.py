@@ -55,7 +55,7 @@ if process:
         import numpy as np
         import sys
         sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
-        from project_name.models.CNN import AudioCNN
+        from bat_classifier.models.CNN import AudioCNN
         model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../trained_model/CNN.pt'))
         # names and respective images.
         class_names = [

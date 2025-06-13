@@ -61,6 +61,10 @@ On the site, you will see a **Prediction** section that will let you try the cod
 **explainable.py**  
 This function is run the main.py, after the run_pipeline(). After the function is run, it show two plots: one of a selected spectrogram and one with the patches of which the function suggests are important for the model prediction. The function occludes a part of the input image (spectrogram) and checks the model prediction. If the model’s confidence interval decreases, this means that the occluded part is important for the classification of the model, therefore it is highlighted respectively. We do this on the entire image to see the entire importance of each patch. Moreover, we decided that instead of having small patches to occlude the image, we need bigger patches that are similar to a bar that occludes the entire horizontal. We do this because if we occlude one of the sound spikes from the spectrogram, the model would still classify it as the bat and the importance matrix would be misguiding or useless. In this case, we iterate through all the pixels vertically and we just move the long patch over the image to highlight the important parts
 
+A sample image is shown below.
+
+![Sample generated image](explained%20AI%20predictions%20images/bat_type%200.png)
+
 **Docker**  
 The project can also be built and run as a Docker container using the following command:
 ```
@@ -84,57 +88,61 @@ An overview of our git repo can be found below:
 │   └───main.py
 │
 ├───bat_classifier
-│   │		├───data
-│   │   		├───download_data.py
-│   │   		└───preprocess.py
+│   ├───data
+│   │   ├───download_data.py
+│   │   └───preprocess.py
 │   └───models
-│       	├───__init__.py
-│      	 	├───base_model.py
-│      		├───CNN.py
-│      		└───metrics.py
+│       ├───__init__.py
+│      	├───base_model.py
+│      	├───CNN.py
+│      	└───metrics.py
 │
 ├───data
 │   ├───cleaned
-│  	├───raw
-│ 	├───sample
-│  	└───labels.csv
+│   ├───raw
+│   ├───sample
+│   └───labels.csv
 │
 ├───dataset
-│   	└───metadata
-│				└───grp_batsq_A
-│           			├───page1.json
-│           			├───page2.json
-│           			└───page3.json
+│   └───metadata
+│   └───grp_batsq_A
+│   ├───page1.json
+│   ├───page2.json
+│   └───page3.json
+│
 ├───explained_ai_predictions_images
-│   			├───bat_type 0 (bomba).png
-│   			├───bat_type 0.png
-│   			├───bat_type 1.png
-│   			├───bat_type 2.png
-│   			├───bat_type 3.png
-│   			├───bat_type example.png
-│   			└───BOOOMBA.jpg
+│   ├───bat_type 0 (bomba).png
+│   ├───bat_type 0.png
+│   ├───bat_type 1.png
+│   ├───bat_type 2.png
+│   ├───bat_type 3.png
+│   ├───bat_type example.png
+│   └───BOOOMBA.jpg
+│
 ├───notebooks
+│
 ├───streamlit_app
-│   │		├───pages
-│   │   		└───about_bats_images
-│   │       				├───Myotis albescens.jpg
-│   │      					├───Nyctalus_noctula.jpg
-│   │      					├───Pipistrellus pipistrellus.jpg
-│   │      					└───Plecotus auritus.jpg
-│   ├───About_Bats.py
-│   ├───About.py
-│   ├───Data_Exploration.py
-│   ├───Logistic_Regression.py
-│   ├───Model_Evaluation.py
-│   ├───Model_Results_Info.py
+│   ├───pages
+│   │   ├───about_bats_images
+│   │   │   ├───Myotis albescens.jpg
+│   │   │   ├───Nyctalus_noctula.jpg
+│   │   │   ├───Pipistrellus pipistrellus.jpg
+│   │   │   └───Plecotus auritus.jpg
+│   │   ├───About_Bats.py
+│   │   ├───About.py
+│   │   ├───Data_Exploration.py
+│   │   ├───Logistic_Regression.py
+│   │   ├───Model_Evaluation.py
+│   │   ├───Model_Results_Info.py
 │   ├───Home.py
 │   └───utils.py
+│
 ├───trained_model
-│ 			├───cnn_metrics.csv
-│ 			├───CNN.pt
-│ 			├───coef.npy
-│ 			├───intercept.npy
-│ 			└───lr_metrics.csv
+│   ├───cnn_metrics.csv
+│   ├───CNN.pt
+│   ├───coef.npy
+│   ├───intercept.npy
+│   └───lr_metrics.csv
 │ 
 ├───__init__.py
 ├───.dockerignore

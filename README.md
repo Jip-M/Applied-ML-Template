@@ -22,6 +22,10 @@ python -m pipeline
 As a result, you will see multiple checkpoints (print statements) throughout the run that highlight when the data is getting prepared, saved, start to train the models, each epoch update of the accuracy and the loss of the main model (CNN), confustion matrix and the average accuracy after 10 (set as default in the pipeline, in the initialize_CNN() function) epochs.
 
 
+**How to run the Streamlit app**
+First, open a terminal at the top of the project (applied-ml-template). When you have the terminal correctly opened, simple run the command **streamlit run streamlit_app/Home.py**. The first time you enter Streamlit might try to get you to try and sign up for a newsletter, just leave the field in the terminal blank and proceed. The Streamlit app will boot up, and further instructions on how to use it are on the Home page. This page will be the first one opened. 
+
+
 **How to run the API app**
 In order to run the FastAPI, you have to open the integrated terminal from the folder called "api" and run this script:
 ```

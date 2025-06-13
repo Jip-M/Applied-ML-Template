@@ -140,22 +140,24 @@ class AudioCNN(nn.Module):
                 if verbose:
                     print("the validation started")
                 val_loss, val_accuracy = self.evaluate(self.validation_data)
+
+                best_loss, epochs_no_improve, stop, best_model_state = self.early_stopping(loss, best_loss, epoch, epochs_no_improve, best_model_state, verbose=verbose)
+                if stop:
+                    if verbose:
+                        print("Early stopping triggered, training stopped.")
+                    break
                 val_losses.append(val_loss)
                 val_accuracies.append(val_accuracy)
-                best_loss, epochs_no_improve, stop, best_model_state = self.early_stopping(loss, best_loss, epoch, epochs_no_improve, best_model_state, verbose=verbose)
-                if stop:
-                    if verbose:
-                        print("Early stopping triggered, training stopped.")
-                    break
             else:
                 test_loss, test_accuracy = self.evaluate(self.test_data)
-                test_losses.append(test_loss)
-                test_accuracies.append(test_accuracy)
+                
                 best_loss, epochs_no_improve, stop, best_model_state = self.early_stopping(loss, best_loss, epoch, epochs_no_improve, best_model_state, verbose=verbose)
                 if stop:
                     if verbose:
                         print("Early stopping triggered, training stopped.")
                     break
+                test_losses.append(test_loss)
+                test_accuracies.append(test_accuracy)
             train_losses.append(epoch_loss)
             train_accuracies.append(epoch_accuracy)
             end = time.perf_counter()

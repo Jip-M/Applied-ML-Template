@@ -38,8 +38,18 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements.txt,target=requirements.txt \
     python -m pip install -r requirements.txt
 
+# Register dummy credentials for Streamlit to prevent registration popup
+RUN mkdir -p /root/.streamlit
+RUN bash -c 'echo -e "\
+[general]\n\
+email = \"\"\n\
+" > /root/.streamlit/credentials.toml'
+
 # Switch to the non-privileged user to run the application.
 USER appuser
+
+# Create Librosa cache directory for the non-privileged user
+RUN mkdir -p /tmp/librosa_cache
 
 # Copy the source code into the container.
 COPY . .
@@ -48,4 +58,4 @@ COPY . .
 EXPOSE 8000
 
 # Run the application.
-CMD uvicorn api.main:app --host 0.0.0.0 --port 8000
+CMD streamlit run streamlit_app/Home.py --server.port 8000

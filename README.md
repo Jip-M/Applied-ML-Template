@@ -16,10 +16,10 @@ Before getting started and running the pipeline, it is important to mention that
 
 To **run** the pipeline, you have to run this script on the APPLIED-ML-TEMPLATE integrated terminal:
 ```
-python -m pipeline
+python -m main
 ```
 
-As a result, you will see multiple checkpoints (print statements) throughout the run that highlight when the data is getting prepared, saved, start to train the models, each epoch update of the accuracy and the loss of the main model (CNN), confustion matrix and the average accuracy after 10 (set as default in the pipeline, in the initialize_CNN() function) epochs.
+As a result, you will see multiple checkpoints (print statements) throughout the run that highlight when the data is getting prepared, saved, start to train the models, each epoch update of the accuracy and the loss of the main model (CNN), confustion matrix and the average accuracy after 10 (set as default in the pipeline, in the initialize_CNN() function) epochs. If you wish to not see the print statements, just set the verbose value to false in the fit function of the CNN. In addition to that, you will also see the explainable AI part explained below in this file.
 
 
 **How to run the Streamlit app**
@@ -38,21 +38,79 @@ http://127.0.0.1:8000/docs#/
 
 On the site, you will see a **Prediction** section that will let you try the code out. To do this, you press on the section and press on the "Try it out" button. This will let you upload a ".wav" file. If you do not upload a file, there will be a built-in sample that you can use to judge the model's performance. When you selected your choice, you press on the "Execute" button. As a result, you will see the prediction of the model below, in the *responses* section.
 
+
+**explainable.py**
+This function is run the main.py, after the run_pipeline(). After the function is run, it show two plots: one of a selected spectrogram and one with the patches of which the function suggests are important for the model prediction. The function occludes a part of the input image (spectrogram) and checks the model prediction. If the model’s confidence interval decreases, this means that the occluded part is important for the classification of the model, therefore it is highlighted respectively. We do this on the entire image to see the entire importance of each patch. Moreover, we decided that instead of having small patches to occlude the image, we need bigger patches that are similar to a bar that occludes the entire horizontal. We do this because if we occlude one of the sound spikes from the spectrogram, the model would still classify it as the bat and the importance matrix would be misguiding or useless. In this case, we iterate through all the pixels vertically and we just move the long patch over the image to highlight the important parts
+
+
 ```bash
-├───data  # Stores .csv
-├───models  # Stores .pkl
-├───notebooks  # Contains experimental .ipynbs
-├───project_name
-│   ├───data  # For data processing, not storing .csv
-│   ├───features
-│   └───models  # For model creation, not storing .pkl
-├───reports
-├───tests
-│   ├───data
-│   ├───features
+├───api
+│   └───main.py
+│
+├───bat_classifier
+│   │		├───data
+│   │   		├───download_data.py
+│   │   		└───preprocess.py
 │   └───models
+│       	├───__init__.py
+│      	 	├───base_model.py
+│      		├───CNN.py
+│      		└───metrics.py
+│
+├───data
+│   ├───cleaned
+│  	├───raw
+│ 	├───sample
+│  	└───labels.csv
+│
+├───dataset
+│   	└───metadata
+│				└───grp_batsq_A
+│           			├───page1.json
+│           			├───page2.json
+│           			└───page3.json
+├───explained_ai_predictions_images
+│   			├───bat_type 0 (bomba).png
+│   			├───bat_type 0.png
+│   			├───bat_type 1.png
+│   			├───bat_type 2.png
+│   			├───bat_type 3.png
+│   			├───bat_type example.png
+│   			└───BOOOMBA.jpg
+├───notebooks
+├───streamlit_app
+│   │		├───pages
+│   │   		└───about_bats_images
+│   │       				├───Myotis albescens.jpg
+│   │      					├───Nyctalus_noctula.jpg
+│   │      					├───Pipistrellus pipistrellus.jpg
+│   │      					└───Plecotus auritus.jpg
+│   ├───About_Bats.py
+│   ├───About.py
+│   ├───Data_Exploration.py
+│   ├───Logistic_Regression.py
+│   ├───Model_Evaluation.py
+│   ├───Model_Results_Info.py
+│   ├───Home.py
+│   └───utils.py
+├───trained_model
+│ 			├───cnn_metrics.csv
+│ 			├───CNN.pt
+│ 			├───coef.npy
+│ 			├───intercept.npy
+│ 			└───lr_metrics.csv
+│ 
+├───__init__.py
+├───.dockerignore
+├───.gitattributes
 ├───.gitignore
 ├───.pre-commit-config.yaml
+├───compose.yaml
+├───Dockerfile
+├───explainable.py
+├───main.py
 ├───pipeline.py
+├───README.Docker.md
 ├───README.md
+├───requirements.txt
 ```
